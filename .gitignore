@@ -1,0 +1,131 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+
+# dependencies
+node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/docs
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+.nx/cache
+.nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+# Java/Gradle Build Artifacts
+build/
+.gradle/
+*.jar
+*.war
+*.class
+*.log
+logs/
+
+# Spring Boot Configuration (Environment-specific)
+application-local.properties
+application-dev.properties
+application-prod.properties
+application-test.properties
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Frontend Build Outputs
+.vite/
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Database Files (if using local SQLite/H2)
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+
+# IDE Additional Files
+*.iml
+*.ipr
+*.iws
+.idea/
+target/
+
+# OS Additional Files
+*.orig
+.DS_Store?
+
+# JVM Crash Logs & Replay Files
+hs_err_pid*
+replay_pid*
+
+# Spring Tool Suite
+.sts4-cache
+.springBeans
+.apt_generated
+.factorypath
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# IntelliJ IDEA Additional
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# VS Code Workspace Files
+*.code-workspace
+
+# Local History (various IDEs)
+.history/
+.localhistory/
+
+# Backup Files
+*.bak
+*.backup
+*~
