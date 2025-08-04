@@ -16,10 +16,22 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
     return null;
   }
 
+  const getStrengthWidth = () => {
+    switch (strength.strength) {
+      case 'weak': return '33.33%';
+      case 'medium': return '66.66%';
+      case 'strong': return '100%';
+      default: return '0%';
+    }
+  };
+
   return (
     <div className="password-strength">
       <div className="password-strength-bar">
-        <div className={`password-strength-fill ${strength.strength}`} />
+        <div 
+          className={`password-strength-fill ${strength.strength}`}
+          style={{ '--strength-width': getStrengthWidth() } as React.CSSProperties}
+        />
       </div>
       {showText && (
         <div className={`password-strength-text ${strength.strength}`}>
