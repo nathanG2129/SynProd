@@ -12,6 +12,15 @@ export class FormValidator {
   // Email validation regex
   private static emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // Field name mapping for user-friendly error messages
+  private static fieldNameMap: Record<string, string> = {
+    firstName: 'First name',
+    lastName: 'Last name',
+    email: 'Email',
+    password: 'Password',
+    confirmPassword: 'Confirm password'
+  };
+
   // Password validation rules
   private static passwordRules: ValidationRule[] = [
     {
@@ -88,13 +97,20 @@ export class FormValidator {
   }
 
   /**
+   * Gets user-friendly field name
+   */
+  private static getFieldDisplayName(fieldName: string): string {
+    return this.fieldNameMap[fieldName] || fieldName;
+  }
+
+  /**
    * Validates required fields
    */
   static validateRequired(value: string, fieldName: string): ValidationResult {
     if (!value.trim()) {
       return {
         isValid: false,
-        message: `${fieldName} is required`
+        message: `${this.getFieldDisplayName(fieldName)} is required`
       };
     }
 
@@ -111,7 +127,7 @@ export class FormValidator {
     if (value.length < minLength) {
       return {
         isValid: false,
-        message: `${fieldName} must be at least ${minLength} characters long`
+        message: `${this.getFieldDisplayName(fieldName)} must be at least ${minLength} characters long`
       };
     }
 
