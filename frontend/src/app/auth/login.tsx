@@ -52,8 +52,7 @@ export function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p>Sign in to your account to continue</p>
+          <h1>Login</h1>
         </div>
 
         {error && (
@@ -72,7 +71,6 @@ export function Login() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
             />
           </div>
 
@@ -85,8 +83,13 @@ export function Login() {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter your password"
             />
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '8px' }}>
+            <Link to="/forgot-password" className="auth-link" style={{ fontSize: '0.875rem' }}>
+              Forgot your password?
+            </Link>
           </div>
 
           <button 
@@ -94,15 +97,14 @@ export function Login() {
             className="auth-button"
             disabled={isLoading}
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Signing in...' : 'SIGN IN'}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Don't have an account?{' '}
             <Link to="/register" className="auth-link">
-              Sign up here
+              Create account
             </Link>
           </p>
         </div>

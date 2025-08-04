@@ -66,8 +66,7 @@ export function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Create Account</h1>
-          <p>Join us and start your journey</p>
+          <h1>Register</h1>
         </div>
 
         {error && (
@@ -87,7 +86,6 @@ export function Register() {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                placeholder="Enter your first name"
               />
             </div>
 
@@ -100,7 +98,6 @@ export function Register() {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                placeholder="Enter your last name"
               />
             </div>
           </div>
@@ -114,7 +111,6 @@ export function Register() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
             />
           </div>
 
@@ -127,7 +123,6 @@ export function Register() {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Create a password"
               minLength={8}
             />
           </div>
@@ -141,7 +136,6 @@ export function Register() {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="Confirm your password"
               minLength={8}
             />
           </div>
@@ -151,15 +145,14 @@ export function Register() {
             className="auth-button"
             disabled={isLoading}
           >
-            {isLoading ? 'Creating account...' : 'Create Account'}
+            {isLoading ? 'Creating account...' : 'CREATE ACCOUNT'}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            Already have an account?{' '}
             <Link to="/login" className="auth-link">
-              Sign in here
+              Sign in
             </Link>
           </p>
         </div>
