@@ -146,10 +146,6 @@
   color: #f56565;
 }
 
-.validation-message.success {
-  color: #48bb78;
-}
-
 @keyframes slideInValidation {
   from {
     opacity: 0;
@@ -184,10 +180,6 @@
 
 .validation-icon.error {
   fill: #f56565;
-}
-
-.validation-icon.success {
-  fill: #48bb78;
 }
 
 /* Password strength indicator */

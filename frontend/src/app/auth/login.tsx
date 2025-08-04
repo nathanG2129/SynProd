@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { CheckIcon, ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
+import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import './auth.css';
 
 export function Login() {
@@ -89,12 +89,6 @@ export function Login() {
                 {getFieldError('email')}
               </div>
             )}
-            {getFieldValidationState('email') === 'valid' && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Email looks good!
-              </div>
-            )}
           </div>
 
           <div className="form-group">
@@ -132,12 +126,6 @@ export function Login() {
               <div className="validation-message error">
                 <ErrorIcon />
                 {getFieldError('password')}
-              </div>
-            )}
-            {getFieldValidationState('password') === 'valid' && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Password meets requirements!
               </div>
             )}
           </div>

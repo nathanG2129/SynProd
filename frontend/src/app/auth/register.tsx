@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { CheckIcon, ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
+import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import { PasswordStrengthIndicator } from '../../components/PasswordStrengthIndicator';
 import './auth.css';
 
@@ -147,12 +147,6 @@ export function Register() {
                 {getFieldError('email')}
               </div>
             )}
-            {getFieldValidationState('email') === 'valid' && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Email looks good!
-              </div>
-            )}
           </div>
 
           <div className="form-group">
@@ -191,12 +185,6 @@ export function Register() {
               <div className="validation-message error">
                 <ErrorIcon />
                 {getFieldError('password')}
-              </div>
-            )}
-            {getFieldValidationState('password') === 'valid' && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Password meets requirements!
               </div>
             )}
             <PasswordStrengthIndicator password={formData.password} />
@@ -240,12 +228,7 @@ export function Register() {
                 {getFieldError('confirmPassword')}
               </div>
             )}
-            {formData.password && formData.confirmPassword && formData.password === formData.confirmPassword && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Passwords match!
-              </div>
-            )}
+
           </div>
 
           <button 

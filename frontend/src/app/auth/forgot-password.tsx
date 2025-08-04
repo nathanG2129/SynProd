@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { CheckIcon, ErrorIcon } from '../../components/ValidationIcons';
+import { ErrorIcon } from '../../components/ValidationIcons';
 import './auth.css';
 
 export function ForgotPassword() {
@@ -103,12 +103,6 @@ export function ForgotPassword() {
               <div className="validation-message error">
                 <ErrorIcon />
                 {getFieldError('email')}
-              </div>
-            )}
-            {getFieldValidationState('email') === 'valid' && (
-              <div className="validation-message success">
-                <CheckIcon />
-                Email looks good!
               </div>
             )}
           </div>
