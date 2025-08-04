@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useFormValidation } from '../../hooks/useFormValidation';
+import { CheckIcon, ErrorIcon } from '../../components/ValidationIcons';
 import './auth.css';
 
 export function ForgotPassword() {
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validationRules = {
+    email: { required: true }
+  };
+
+  const {
+    formData,
+    updateField,
+    handleBlur,
+    handleSubmit,
+    getFieldError,
+    getFieldValidationState
+  } = useFormValidation(
+    { email: '' },
+    validationRules,
+    { validateOnBlur: true, validateOnSubmit: true }
+  );
+
+  const onSubmit = async (data: Record<string, string>) => {
     setIsLoading(true);
     setError('');
 
@@ -20,7 +37,7 @@ export function ForgotPassword() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: data.email }),
       });
 
       if (response.ok) {
@@ -42,7 +59,7 @@ export function ForgotPassword() {
         <div className="auth-card">
           <div className="auth-header">
             <h1>Check Your Email</h1>
-            <p>We've sent a password reset link to {email}</p>
+            <p>We've sent a password reset link to {formData.email}</p>
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
@@ -69,17 +86,31 @@ export function ForgotPassword() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => updateField('email', e.target.value)}
+              onBlur={() => handleBlur('email')}
+              className={getFieldValidationState('email')}
               required
             />
+            {getFieldError('email') && (
+              <div className="validation-message error">
+                <ErrorIcon />
+                {getFieldError('email')}
+              </div>
+            )}
+            {getFieldValidationState('email') === 'valid' && (
+              <div className="validation-message success">
+                <CheckIcon />
+                Email looks good!
+              </div>
+            )}
           </div>
 
           <button 

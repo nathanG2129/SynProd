@@ -105,6 +105,102 @@
   color: #a0aec0;
 }
 
+/* Validation styles */
+.form-group input.valid {
+  border-color: #48bb78;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+}
+
+.form-group input.invalid {
+  border-color: #f56565;
+  box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+}
+
+.form-group input.pristine {
+  border-color: #e2e8f0;
+}
+
+.validation-message {
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.validation-message.error {
+  color: #f56565;
+}
+
+.validation-message.success {
+  color: #48bb78;
+}
+
+.validation-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.validation-icon.error {
+  fill: #f56565;
+}
+
+.validation-icon.success {
+  fill: #48bb78;
+}
+
+/* Password strength indicator */
+.password-strength {
+  margin-top: 8px;
+}
+
+.password-strength-bar {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.password-strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.password-strength-fill.weak {
+  background: #f56565;
+  width: 33.33%;
+}
+
+.password-strength-fill.medium {
+  background: #ed8936;
+  width: 66.66%;
+}
+
+.password-strength-fill.strong {
+  background: #48bb78;
+  width: 100%;
+}
+
+.password-strength-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.password-strength-text.weak {
+  color: #f56565;
+}
+
+.password-strength-text.medium {
+  color: #ed8936;
+}
+
+.password-strength-text.strong {
+  color: #48bb78;
+}
+
 .auth-button {
   background: #91b029;
   color: white;

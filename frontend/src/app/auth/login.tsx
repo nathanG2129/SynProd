@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useFormValidation } from '../../hooks/useFormValidation';
+import { CheckIcon, ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import './auth.css';
 
 export function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const validationRules = {
+    email: { required: true },
+    password: { required: true }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    formData,
+    updateField,
+    handleBlur,
+    handleSubmit,
+    getFieldError,
+    getFieldValidationState
+  } = useFormValidation(
+    { email: '', password: '' },
+    validationRules,
+    { validateOnBlur: true, validateOnSubmit: true }
+  );
+
+  const onSubmit = async (data: Record<string, string>) => {
     setIsLoading(true);
     setError('');
 
@@ -30,12 +39,12 @@ export function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
+        const responseData = await response.json();
+        localStorage.setItem('token', responseData.token);
         navigate('/dashboard');
       } else {
         const errorData = await response.json();
@@ -61,7 +70,7 @@ export function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -69,21 +78,68 @@ export function Login() {
               id="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={(e) => updateField('email', e.target.value)}
+              onBlur={() => handleBlur('email')}
+              className={getFieldValidationState('email')}
               required
             />
+            {getFieldError('email') && (
+              <div className="validation-message error">
+                <ErrorIcon />
+                {getFieldError('email')}
+              </div>
+            )}
+            {getFieldValidationState('email') === 'valid' && (
+              <div className="validation-message success">
+                <CheckIcon />
+                Email looks good!
+              </div>
+            )}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={(e) => updateField('password', e.target.value)}
+                onBlur={() => handleBlur('password')}
+                className={getFieldValidationState('password')}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#718096',
+                  padding: '0'
+                }}
+              >
+                {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+              </button>
+            </div>
+            {getFieldError('password') && (
+              <div className="validation-message error">
+                <ErrorIcon />
+                {getFieldError('password')}
+              </div>
+            )}
+            {getFieldValidationState('password') === 'valid' && (
+              <div className="validation-message success">
+                <CheckIcon />
+                Password meets requirements!
+              </div>
+            )}
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '8px' }}>
