@@ -24,8 +24,9 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# misc
+# Miscellaneous
 /docs
+/.cursor
 /.sass-cache
 /connect.lock
 /coverage
