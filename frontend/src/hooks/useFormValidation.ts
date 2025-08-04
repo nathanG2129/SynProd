@@ -30,13 +30,18 @@ export function useFormValidation(
   const validateField = useCallback((fieldName: string, value: string) => {
     let validationResult: ValidationResult = { isValid: true, message: '' };
 
-    // Apply validation rules based on field type
+    // Apply validation rules based on field type and context
     switch (fieldName) {
       case 'email':
         validationResult = FormValidator.validateEmail(value);
         break;
       case 'password':
-        validationResult = FormValidator.validatePassword(value);
+        // Check if we should use strict password validation or just required
+        if (validationRules[fieldName]?.strict !== false) {
+          validationResult = FormValidator.validatePassword(value);
+        } else {
+          validationResult = FormValidator.validateRequired(value, fieldName);
+        }
         break;
       case 'confirmPassword':
         if (formData.password) {
@@ -106,6 +111,10 @@ export function useFormValidation(
       e.preventDefault();
       
       if (validateOnSubmit) {
+        // Mark all fields as touched when submit is pressed
+        const allFields = Object.keys(validationRules);
+        setTouchedFields(new Set(allFields));
+        
         const validationResults = validateForm();
         const isValid = Object.values(validationResults).every(result => result.isValid);
         
@@ -116,7 +125,7 @@ export function useFormValidation(
         onSubmit(formData);
       }
     };
-  }, [validateOnSubmit, validateForm, isFormValid, formData]);
+  }, [validateOnSubmit, validateForm, validationRules, formData]);
 
   // Reset form
   const resetForm = useCallback(() => {
@@ -130,7 +139,8 @@ export function useFormValidation(
     const isTouched = touchedFields.has(fieldName);
     const validation = validationState[fieldName];
     
-    return isTouched && validation && !validation.isValid ? validation.message : '';
+    // Show error if field is touched or if validation state exists (from submit)
+    return (isTouched || validation) && validation && !validation.isValid ? validation.message : '';
   }, [touchedFields, validationState]);
 
   // Get field validation state
@@ -138,7 +148,8 @@ export function useFormValidation(
     const isTouched = touchedFields.has(fieldName);
     const validation = validationState[fieldName];
     
-    if (!isTouched) return 'pristine';
+    // Show validation state if field is touched or if validation state exists (from submit)
+    if (!isTouched && !validation) return 'pristine';
     if (!validation) return 'pristine';
     return validation.isValid ? 'valid' : 'invalid';
   }, [touchedFields, validationState]);

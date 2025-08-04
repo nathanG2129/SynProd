@@ -86,7 +86,7 @@ export function Register() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>

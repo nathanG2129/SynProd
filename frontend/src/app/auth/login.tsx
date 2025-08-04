@@ -12,7 +12,7 @@ export function Login() {
 
   const validationRules = {
     email: { required: true },
-    password: { required: true }
+    password: { required: true, strict: false }
   };
 
   const {
@@ -70,7 +70,7 @@ export function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

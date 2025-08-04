@@ -86,7 +86,7 @@ export function ForgotPassword() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
