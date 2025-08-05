@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon } from '../../components/ValidationIcons';
+import { useAuth } from '../../contexts/AuthContext';
 import './auth.css';
 
 export function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { forgotPassword } = useAuth();
 
   const validationRules = {
     email: { required: true }
@@ -31,23 +33,10 @@ export function ForgotPassword() {
     setError('');
 
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: data.email }),
-      });
-
-      if (response.ok) {
-        setSuccess(true);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to send reset email');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
+      await forgotPassword(data.email);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email');
     } finally {
       setIsLoading(false);
     }

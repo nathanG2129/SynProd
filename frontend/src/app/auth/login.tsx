@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
+import { useAuth } from '../../contexts/AuthContext';
 import './auth.css';
 
 export function Login() {
@@ -9,6 +10,7 @@ export function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validationRules = {
     email: { required: true },
@@ -33,25 +35,10 @@ export function Login() {
     setError('');
 
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        localStorage.setItem('token', responseData.token);
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Login failed');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
+      await login(data.email, data.password);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }

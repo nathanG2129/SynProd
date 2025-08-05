@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import { PasswordStrengthIndicator } from '../../components/PasswordStrengthIndicator';
+import { useAuth } from '../../contexts/AuthContext';
 import './auth.css';
 
 export function Register() {
@@ -11,6 +12,7 @@ export function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const validationRules = {
     firstName: { required: true },
@@ -44,30 +46,11 @@ export function Register() {
     }
 
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          password: data.password
-        }),
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        localStorage.setItem('token', responseData.token);
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Registration failed');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
+      await register(data.firstName, data.lastName, data.email, data.password);
+      // Registration successful, show success message and redirect to login
+      navigate('/login', { state: { message: 'Registration successful! Please check your email to verify your account.' } });
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }

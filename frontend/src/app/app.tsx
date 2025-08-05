@@ -6,6 +6,7 @@ import { Route, Routes, Link } from 'react-router-dom';
 import { Login } from '../app/auth/login';
 import { Register } from '../app/auth/register';
 import { ForgotPassword } from '../app/auth/forgot-password';
+import { Dashboard } from '../app/dashboard';
 import './auth/auth.css';
 
 export function App() {
@@ -15,6 +16,7 @@ export function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route
           path="/"
           element={
