@@ -1,96 +1,183 @@
-# SynProd
+# SynProd - Authentication System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A full-stack authentication system built with React, Spring Boot, and PostgreSQL.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Tech Stack
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+### Backend
+- **Spring Boot 3.5.4** with Java 21
+- **Spring Security** with JWT authentication
+- **Spring Data JPA** with Hibernate
+- **PostgreSQL** database
+- **BCrypt** password hashing
+- **JWT** for stateless authentication
 
-## Run tasks
+### Frontend
+- **React 19** with TypeScript
+- **React Router** for navigation
+- **Axios** for API communication
+- **Context API** for state management
+- **Custom form validation** with real-time feedback
 
-To run tasks with Nx use:
+## Features
 
-```sh
-npx nx <target> <project-name>
+### Authentication
+- ✅ User registration with email verification
+- ✅ User login with JWT tokens
+- ✅ Password reset via email
+- ✅ Email verification system
+- ✅ JWT token refresh mechanism
+- ✅ Protected routes
+- ✅ Role-based access control (RBAC)
+
+### Security
+- ✅ Password strength validation
+- ✅ BCrypt password hashing
+- ✅ JWT token-based authentication
+- ✅ CORS configuration
+- ✅ Input validation and sanitization
+- ✅ Secure password reset flow
+
+### User Experience
+- ✅ Real-time form validation
+- ✅ Password strength indicator
+- ✅ Responsive design
+- ✅ Loading states
+- ✅ Error handling
+- ✅ Success feedback
+
+## Getting Started
+
+### Prerequisites
+- Java 21
+- Node.js 18+
+- PostgreSQL
+- Docker (optional, for database)
+
+### Backend Setup
+
+1. **Database Setup**
+   ```bash
+   # Using Docker
+   docker run --name synprod-db -e POSTGRES_DB=synprod -e POSTGRES_USER=synprod -e POSTGRES_PASSWORD=your_password -p 5432:5432 -d postgres:15
+   ```
+
+2. **Environment Variables**
+   Create a `.env` file in the backend directory:
+   ```env
+   DATABASE_URL=jdbc:postgresql://localhost:5432/synprod
+   DATABASE_USERNAME=synprod
+   DATABASE_PASSWORD=your_password
+   JWT_SECRET=your-super-secret-jwt-key-for-development-only-change-in-production
+   ```
+
+3. **Run Backend**
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
+
+### Frontend Setup
+
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Run Frontend**
+   ```bash
+   npx nx serve frontend
+   ```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/refresh` - Refresh JWT token
+- `GET /api/auth/verify-email` - Verify email address
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password` - Reset password
+
+### User Management
+- `GET /api/user/profile` - Get current user profile
+- `GET /api/user/{id}` - Get user by ID
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    is_enabled BOOLEAN NOT NULL DEFAULT true,
+    email_verified BOOLEAN NOT NULL DEFAULT false,
+    verification_token VARCHAR(255),
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-For example:
+## Development Notes
 
-```sh
-npx nx build myproject
+### Email Configuration
+For development, email links are logged to the console instead of sending actual emails. To enable real email sending:
+
+1. Configure SMTP settings in `application.properties`
+2. Uncomment the email sending code in `EmailService.java`
+
+### JWT Configuration
+- Access tokens expire in 24 hours
+- Refresh tokens expire in 7 days
+- Change the JWT secret in production
+
+### Security Considerations
+- Use strong JWT secrets in production
+- Configure proper CORS settings
+- Enable HTTPS in production
+- Implement rate limiting
+- Add request logging and monitoring
+
+## Project Structure
+
+```
+SynProd/
+├── backend/
+│   ├── src/main/java/com/synprod/SynProd/
+│   │   ├── controller/     # REST controllers
+│   │   ├── dto/           # Data transfer objects
+│   │   ├── entity/        # JPA entities
+│   │   ├── repository/    # Data access layer
+│   │   ├── security/      # Security configuration
+│   │   └── service/       # Business logic
+│   └── src/main/resources/
+│       └── application.properties
+├── frontend/
+│   ├── src/
+│   │   ├── app/           # React components
+│   │   ├── components/    # Reusable components
+│   │   ├── contexts/      # React contexts
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── services/      # API services
+│   │   └── utils/         # Utility functions
+│   └── public/
+└── docker-compose.yml
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Contributing
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## Add new projects
+## License
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
-
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
-
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+MIT License
