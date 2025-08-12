@@ -42,7 +42,7 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USER;
+    private Role role = Role.PRODUCTION;
 
     @Column(name = "is_enabled", nullable = false)
     private boolean enabled = true;
