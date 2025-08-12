@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
+import { ErrorIcon, EyeIcon, EyeSlashIcon, CheckCircleIcon } from '../../components/ValidationIcons';
 import { useAuth } from '../../contexts/AuthContext';
 import './auth.css';
 
 export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+
+  // Check for success message from registration
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the message from location state to prevent it from showing again on refresh
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   const validationRules = {
     email: { required: true },
@@ -34,6 +44,7 @@ export function Login() {
   const onSubmit = async (data: Record<string, string>) => {
     setIsLoading(true);
     setError('');
+    setSuccessMessage(''); // Clear success message when attempting login
 
     try {
       await login(data.email, data.password);
@@ -54,6 +65,16 @@ export function Login() {
         <div className="auth-header">
           <h1>Login</h1>
         </div>
+
+        {successMessage && (
+          <div className="success-message">
+            <CheckCircleIcon />
+            <div className="success-message-content">
+              <h3>Registration Successful!</h3>
+              <p>Please check your email and click the verification link to activate your account before logging in.</p>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="error-message">
