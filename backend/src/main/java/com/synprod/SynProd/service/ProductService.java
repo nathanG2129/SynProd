@@ -54,6 +54,53 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    // Advanced search with multiple filters
+    public List<ProductDto> searchProductsWithFilters(
+            String name,
+            String description,
+            String componentName,
+            String ingredientName,
+            Double minWeight,
+            Double maxWeight,
+            String unit
+    ) {
+        List<Product> products = productRepository.findWithFilters(
+                name, description, componentName, ingredientName, minWeight, maxWeight, unit
+        );
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // Search by component name
+    public List<ProductDto> searchProductsByComponent(String componentName) {
+        List<Product> products = productRepository.findByComponentName(componentName);
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // Search by ingredient name
+    public List<ProductDto> searchProductsByIngredient(String ingredientName) {
+        List<Product> products = productRepository.findByIngredientName(ingredientName);
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // Get filter options
+    public List<String> getAvailableUnits() {
+        return productRepository.findDistinctUnits();
+    }
+
+    public List<String> getAvailableComponents() {
+        return productRepository.findDistinctComponentNames();
+    }
+
+    public List<String> getAvailableIngredients() {
+        return productRepository.findDistinctIngredientNames();
+    }
+
     // Create new product
     public ProductDto createProduct(CreateProductRequest request) {
         // Validate that composition percentages add up to 100% (if any compositions are provided)

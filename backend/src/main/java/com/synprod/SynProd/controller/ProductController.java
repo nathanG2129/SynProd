@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -52,6 +54,62 @@ public class ProductController {
         try {
             List<ProductDto> products = productService.searchProductsByName(name);
             return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Advanced search with multiple filters (accessible by all authenticated users)
+    @GetMapping("/search/advanced")
+    public ResponseEntity<List<ProductDto>> searchProductsAdvanced(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String componentName,
+            @RequestParam(required = false) String ingredientName,
+            @RequestParam(required = false) Double minWeight,
+            @RequestParam(required = false) Double maxWeight,
+            @RequestParam(required = false) String unit) {
+        try {
+            List<ProductDto> products = productService.searchProductsWithFilters(
+                    name, description, componentName, ingredientName, minWeight, maxWeight, unit
+            );
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Search by component (accessible by all authenticated users)
+    @GetMapping("/search/component")
+    public ResponseEntity<List<ProductDto>> searchByComponent(@RequestParam String componentName) {
+        try {
+            List<ProductDto> products = productService.searchProductsByComponent(componentName);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Search by ingredient (accessible by all authenticated users)
+    @GetMapping("/search/ingredient")
+    public ResponseEntity<List<ProductDto>> searchByIngredient(@RequestParam String ingredientName) {
+        try {
+            List<ProductDto> products = productService.searchProductsByIngredient(ingredientName);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Get filter options (accessible by all authenticated users)
+    @GetMapping("/filter-options")
+    public ResponseEntity<Map<String, List<String>>> getFilterOptions() {
+        try {
+            Map<String, List<String>> options = new HashMap<>();
+            options.put("units", productService.getAvailableUnits());
+            options.put("components", productService.getAvailableComponents());
+            options.put("ingredients", productService.getAvailableIngredients());
+            return ResponseEntity.ok(options);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
