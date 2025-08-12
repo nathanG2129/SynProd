@@ -39,10 +39,110 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       loadUser();
+      // Start token refresh interval
+      startTokenRefreshInterval();
     } else {
       setIsLoading(false);
     }
+
+    // Cleanup interval on unmount
+    return () => {
+      clearTokenRefreshInterval();
+      clearSessionTimeout();
+    };
   }, []);
+
+  // Token refresh interval and session timeout
+  let refreshInterval: NodeJS.Timeout | null = null;
+  let sessionTimeout: NodeJS.Timeout | null = null;
+  let lastActivity = Date.now();
+
+  const startTokenRefreshInterval = () => {
+    // Refresh token every 50 minutes (token expires in 1 hour)
+    refreshInterval = setInterval(async () => {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          await refreshAuthToken(refreshToken);
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+          logout();
+        }
+      }
+    }, 50 * 60 * 1000); // 50 minutes
+  };
+
+  const clearTokenRefreshInterval = () => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+  };
+
+  const startSessionTimeout = () => {
+    // Session timeout after 2 hours of inactivity
+    const timeoutDuration = 2 * 60 * 60 * 1000; // 2 hours
+    
+    sessionTimeout = setTimeout(() => {
+      console.log('Session timed out due to inactivity');
+      logout();
+    }, timeoutDuration);
+  };
+
+  const clearSessionTimeout = () => {
+    if (sessionTimeout) {
+      clearTimeout(sessionTimeout);
+      sessionTimeout = null;
+    }
+  };
+
+  const updateActivity = () => {
+    lastActivity = Date.now();
+    clearSessionTimeout();
+    if (isAuthenticated) {
+      startSessionTimeout();
+    }
+  };
+
+  // Activity detection
+  useEffect(() => {
+    if (isAuthenticated) {
+      startSessionTimeout();
+      
+      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      const activityHandler = () => {
+        updateActivity();
+      };
+
+      // Add event listeners for user activity
+      events.forEach(event => {
+        document.addEventListener(event, activityHandler, true);
+      });
+
+      return () => {
+        // Clean up event listeners
+        events.forEach(event => {
+          document.removeEventListener(event, activityHandler, true);
+        });
+        clearSessionTimeout();
+      };
+    }
+  }, [isAuthenticated]);
+
+  const refreshAuthToken = async (refreshToken: string) => {
+    try {
+      const response = await authAPI.refreshToken(refreshToken);
+      const { token, refreshToken: newRefreshToken } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('refreshToken', newRefreshToken);
+      
+      return { token, refreshToken: newRefreshToken };
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const loadUser = async () => {
     try {
@@ -65,6 +165,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
+      
+      // Start token refresh interval after successful login
+      startTokenRefreshInterval();
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Login failed');
     }
@@ -84,6 +187,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     setUser(null);
+    clearTokenRefreshInterval();
+    clearSessionTimeout();
   };
 
   const forgotPassword = async (email: string) => {

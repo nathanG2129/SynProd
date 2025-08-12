@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,6 +10,7 @@ export function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const validationRules = {
@@ -36,7 +37,10 @@ export function Login() {
 
     try {
       await login(data.email, data.password);
-      navigate('/dashboard');
+      
+      // Redirect to the intended destination or dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {

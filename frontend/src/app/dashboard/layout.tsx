@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Sidebar } from './components/Sidebar';
-import { Header } from './components/Header';
+import { Sidebar, Header } from './components';
+import { SessionWarning } from '../../components/SessionWarning';
 import './dashboard.css';
 
 export function DashboardLayout() {
@@ -42,6 +42,8 @@ export function DashboardLayout() {
           </div>
         </main>
       </div>
+      
+      <SessionWarning />
     </div>
   );
 }
