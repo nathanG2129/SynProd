@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
 import { Product } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -11,13 +11,25 @@ export function ProductList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; product: Product | null }>({ show: false, product: null });
+  const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
 
   const canManageProducts = user?.role === 'MANAGER' || user?.role === 'ADMIN';
+  const canDeleteProducts = user?.role === 'ADMIN';
 
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    // Check for success message from navigation state
+    if (location.state?.message) {
+      // You could show a toast notification here
+      console.log(location.state.message);
+    }
+  }, [location.state]);
 
   const loadProducts = async () => {
     try {
@@ -51,6 +63,26 @@ export function ProductList() {
       setSearchResults([]);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!deleteConfirm.product || !canDeleteProducts) return;
+
+    try {
+      setIsDeleting(true);
+      await productAPI.deleteProduct(deleteConfirm.product.id);
+      
+      // Remove from local state
+      setProducts(products.filter(p => p.id !== deleteConfirm.product!.id));
+      setSearchResults(searchResults.filter(p => p.id !== deleteConfirm.product!.id));
+      
+      setDeleteConfirm({ show: false, product: null });
+    } catch (err: any) {
+      setError('Failed to delete product');
+      console.error('Error deleting product:', err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -274,21 +306,70 @@ export function ProductList() {
                   >
                     Edit
                   </Link>
-                  <button 
-                    className="btn btn-danger"
-                    style={{ flex: 1, fontSize: '0.75rem', padding: '6px 12px' }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // TODO: Implement delete functionality
-                      console.log('Delete product:', product.id);
-                    }}
-                  >
-                    Delete
-                  </button>
+                  {canDeleteProducts && (
+                    <button 
+                      className="btn btn-danger"
+                      style={{ flex: 1, fontSize: '0.75rem', padding: '6px 12px' }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteConfirm({ show: true, product });
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && deleteConfirm.product && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', color: '#dc2626' }}>
+              Delete Product
+            </h3>
+            <p style={{ margin: '0 0 24px 0', color: '#64748b' }}>
+              Are you sure you want to delete "{deleteConfirm.product.name}"? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => setDeleteConfirm({ show: false, product: null })}
+                className="btn btn-secondary"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteProduct}
+                className="btn btn-danger"
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Product'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

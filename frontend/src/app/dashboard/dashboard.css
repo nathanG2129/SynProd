@@ -616,6 +616,126 @@
   }
 }
 
+/* Product Form Styles */
+.product-form {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.composition-form-item,
+.ingredient-form-item {
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.composition-form-item:hover,
+.ingredient-form-item:hover {
+  border-color: rgba(145, 176, 41, 0.3);
+  box-shadow: 0 2px 8px rgba(145, 176, 41, 0.1);
+}
+
+.success-message {
+  background: linear-gradient(135deg, #d4f1a8, #91b029);
+  border: 1px solid #91b029;
+  border-radius: 6px;
+  color: white;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  animation: slideInSuccess 0.3s ease-out;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* Form Grid Layout */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-row.three-col {
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+/* Enhanced form inputs */
+.form-group input[type="number"] {
+  text-align: right;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Composition and Ingredient Item Styles */
+.composition-form-item h4,
+.ingredient-form-item h4 {
+  color: #445c3c;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Delete button styles */
+.composition-form-item button[type="button"],
+.ingredient-form-item button[type="button"] {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.composition-form-item button[type="button"]:hover,
+.ingredient-form-item button[type="button"]:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+/* Percentage indicator styles */
+.percentage-indicator {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.percentage-indicator.valid {
+  background: linear-gradient(135deg, #d4f1a8, #91b029);
+  color: white;
+}
+
+.percentage-indicator.invalid {
+  background: linear-gradient(135deg, #fef3c7, #f59e0b);
+  color: #92400e;
+}
+
+/* Enhanced responsive design */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-row.three-col {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-form {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .dashboard-header {
     padding: 0 12px;
@@ -627,5 +747,10 @@
   
   .page-title {
     font-size: 1.5rem;
+  }
+  
+  .composition-form-item,
+  .ingredient-form-item {
+    padding: 12px;
   }
 }

@@ -7,6 +7,7 @@ import { DashboardLayout } from '../app/dashboard/layout';
 import { DashboardHome } from '../app/dashboard/pages/DashboardHome';
 import { ProductList } from '../app/dashboard/pages/ProductList';
 import { ProductDetail } from '../app/dashboard/pages/ProductDetail';
+import { ProductForm } from '../app/dashboard/pages/ProductForm';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 import './auth/auth.css';
@@ -64,7 +65,9 @@ export function App() {
           <Route index element={<DashboardHome />} />
           <Route path="recipes" element={<ProductList />} />
           <Route path="products" element={<ProductList />} />
+          <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id" element={<ProductDetail />} />
+          <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="users" element={<div>User Management - Coming Soon</div>} />
           <Route path="reports" element={<div>Reports - Coming Soon</div>} />
         </Route>
