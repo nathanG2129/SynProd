@@ -34,6 +34,7 @@ export function DashboardLayout() {
           user={user}
           collapsed={sidebarCollapsed}
           onCollapse={setSidebarCollapsed}
+          onLogout={handleLogout}
         />
         
         <main className={`dashboard-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>

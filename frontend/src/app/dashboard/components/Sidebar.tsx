@@ -6,6 +6,7 @@ interface SidebarProps {
   user: User;
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
+  onLogout: () => void;
 }
 
 interface NavItem {
@@ -15,7 +16,7 @@ interface NavItem {
   roles: string[];
 }
 
-export function Sidebar({ user, collapsed, onCollapse }: SidebarProps) {
+export function Sidebar({ user, collapsed, onCollapse, onLogout }: SidebarProps) {
   const navItems: NavItem[] = [
     {
       path: '/dashboard',
@@ -108,19 +109,18 @@ export function Sidebar({ user, collapsed, onCollapse }: SidebarProps) {
         </ul>
       </nav>
 
-      {!collapsed && (
-        <div className="sidebar-footer">
-          <div className="sidebar-user-info">
-            <div className="user-role-info">
-              <span className="role-label">Role:</span>
-              <span className={`role-value ${user.role.toLowerCase()}`}>
-                {user.role === 'PRODUCTION' ? 'Production' : 
-                 user.role === 'MANAGER' ? 'Manager' : 'Admin'}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="sidebar-footer">
+        <button className="sidebar-logout-btn" onClick={onLogout}>
+          <span className="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16,17 21,12 16,7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span>
+          {!collapsed && <span className="nav-label">Sign Out</span>}
+        </button>
+      </div>
     </aside>
   );
 }
