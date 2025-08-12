@@ -62,7 +62,7 @@ export function Header({ user, onToggleSidebar, onLogout, sidebarCollapsed }: He
           </div>
           <div className="user-details">
             <div className="user-name">{user.firstName} {user.lastName}</div>
-            <div className={getRoleBadgeClass(user.role)}>
+            <div className="user-name">
               {getRoleDisplayName(user.role)}
             </div>
           </div>

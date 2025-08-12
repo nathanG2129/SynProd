@@ -73,11 +73,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 8px 0px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f9fcf4, #f1f6e8);
-  border: 1px solid rgba(145, 176, 41, 0.2);
-  box-shadow: 0 2px 4px rgba(145, 176, 41, 0.1);
 }
 
 .user-avatar {
@@ -107,6 +104,7 @@
 
 /* Role Badges */
 .role-badge {
+  padding: 4px 8px;
   font-size: 0.75rem;
   font-weight: 500;
   border-radius: 4px;
@@ -421,14 +419,13 @@
 .profile-summary {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .profile-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
   border-bottom: 1px solid #f1f5f9;
 }
 
