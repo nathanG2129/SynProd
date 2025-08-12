@@ -101,6 +101,28 @@ export const productAPI = {
   
   // Search products by name
   searchProducts: (name: string) => api.get('/products/search', { params: { name } }),
+
+  // Advanced search with filters
+  searchProductsAdvanced: (filters: {
+    name?: string;
+    description?: string;
+    componentName?: string;
+    ingredientName?: string;
+    minWeight?: number;
+    maxWeight?: number;
+    unit?: string;
+  }) => api.get('/products/search/advanced', { params: filters }),
+
+  // Search by component
+  searchByComponent: (componentName: string) => 
+    api.get('/products/search/component', { params: { componentName } }),
+
+  // Search by ingredient
+  searchByIngredient: (ingredientName: string) => 
+    api.get('/products/search/ingredient', { params: { ingredientName } }),
+
+  // Get filter options
+  getFilterOptions: () => api.get('/products/filter-options'),
   
   // Create new product (MANAGER and ADMIN only)
   createProduct: (data: {

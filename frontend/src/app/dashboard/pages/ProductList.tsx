@@ -3,14 +3,17 @@ import { Link, useLocation } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
 import { Product } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
+import { ProductFilters, SearchFilters } from '../components/ProductFilters';
 
 export function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>({});
+  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'baseWeight'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; product: Product | null }>({ show: false, product: null });
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
@@ -45,25 +48,27 @@ export function ProductList() {
     }
   };
 
-  const handleSearch = async (term: string) => {
-    setSearchTerm(term);
-    
-    if (!term.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
+  const handleAdvancedSearch = async (filters: SearchFilters) => {
     try {
       setIsSearching(true);
-      const response = await productAPI.searchProducts(term);
+      setError('');
+      setActiveFilters(filters);
+      
+      const response = await productAPI.searchProductsAdvanced(filters);
       setSearchResults(response.data);
     } catch (err: any) {
+      setError('Search failed');
       console.error('Search error:', err);
       setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults([]);
+    setActiveFilters({});
+    setIsSearching(false);
   };
 
   const handleDeleteProduct = async () => {
@@ -86,7 +91,35 @@ export function ProductList() {
     }
   };
 
-  const displayProducts = searchTerm.trim() ? searchResults : products;
+  const sortProducts = (productsToSort: Product[]) => {
+    return [...productsToSort].sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt);
+          bValue = new Date(b.createdAt);
+          break;
+        case 'baseWeight':
+          aValue = a.baseWeight;
+          bValue = b.baseWeight;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const hasActiveSearch = Object.keys(activeFilters).length > 0;
+  const displayProducts = sortProducts(hasActiveSearch ? searchResults : products);
 
   if (isLoading) {
     return (
@@ -139,48 +172,64 @@ export function ProductList() {
         </div>
       )}
 
-      {/* Search Bar */}
+      {/* Search and Filters */}
+      <ProductFilters
+        onSearch={handleAdvancedSearch}
+        onClear={handleClearSearch}
+        isSearching={isSearching}
+      />
+
+      {/* Sorting Options */}
       <div className="content-card">
-        <div className="form-group">
-          <label htmlFor="search">Search Products</label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              id="search"
-              placeholder="Search by product name..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, color: '#445c3c' }}>
+            {hasActiveSearch ? `Search Results (${displayProducts.length})` : `All Products (${displayProducts.length})`}
+          </h3>
+          
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'baseWeight')}
               style={{
-                width: '100%',
-                padding: '12px 40px 12px 16px',
+                padding: '6px 8px',
                 border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                fontSize: '1rem'
+                borderRadius: '4px',
+                fontSize: '0.875rem'
               }}
-            />
-            <div style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#718096'
-            }}>
-              {isSearching ? (
-                <div style={{ 
-                  width: '16px', 
-                  height: '16px', 
-                  border: '2px solid #e2e8f0',
-                  borderTop: '2px solid #91b029',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }}></div>
+            >
+              <option value="name">Name</option>
+              <option value="createdAt">Date Created</option>
+              <option value="baseWeight">Weight</option>
+            </select>
+            
+            <button
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#91b029',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+            >
+              {sortOrder === 'asc' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 6h18"/>
+                  <path d="M6 12h12"/>
+                  <path d="M9 18h6"/>
+                </svg>
               ) : (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
+                  <path d="M9 6h6"/>
+                  <path d="M6 12h12"/>
+                  <path d="M3 18h18"/>
                 </svg>
               )}
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -194,12 +243,12 @@ export function ProductList() {
           </svg>
           <h3>No Products Found</h3>
           <p style={{ color: '#64748b', marginBottom: '24px' }}>
-            {searchTerm.trim() 
-              ? `No products found matching "${searchTerm}"`
+            {hasActiveSearch 
+              ? 'No products found matching your search criteria.'
               : 'No products have been created yet.'
             }
           </p>
-          {canManageProducts && !searchTerm.trim() && (
+          {canManageProducts && !hasActiveSearch && (
             <Link to="/dashboard/products/new" className="btn btn-primary">
               Create First Product
             </Link>
