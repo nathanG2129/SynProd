@@ -91,6 +91,62 @@ export const userAPI = {
   getUserById: (id: number) => api.get(`/user/${id}`),
 };
 
+// Product API
+export const productAPI = {
+  // Get all products (accessible by all authenticated users)
+  getAllProducts: () => api.get('/products'),
+  
+  // Get product by ID with full recipe data
+  getProductById: (id: number) => api.get(`/products/${id}`),
+  
+  // Search products by name
+  searchProducts: (name: string) => api.get('/products/search', { params: { name } }),
+  
+  // Create new product (MANAGER and ADMIN only)
+  createProduct: (data: {
+    name: string;
+    description?: string;
+    baseWeight: number;
+    baseWeightUnit: string;
+    compositions?: Array<{
+      componentName: string;
+      percentage: number;
+      notes?: string;
+    }>;
+    additionalIngredients?: Array<{
+      ingredientName: string;
+      quantity: number;
+      unit: string;
+      notes?: string;
+    }>;
+  }) => api.post('/products', data),
+  
+  // Update existing product (MANAGER and ADMIN only)
+  updateProduct: (id: number, data: {
+    name: string;
+    description?: string;
+    baseWeight: number;
+    baseWeightUnit: string;
+    compositions?: Array<{
+      componentName: string;
+      percentage: number;
+      notes?: string;
+    }>;
+    additionalIngredients?: Array<{
+      ingredientName: string;
+      quantity: number;
+      unit: string;
+      notes?: string;
+    }>;
+  }) => api.put(`/products/${id}`, data),
+  
+  // Delete product (ADMIN only)
+  deleteProduct: (id: number) => api.delete(`/products/${id}`),
+  
+  // Get products by current user
+  getMyProducts: () => api.get('/products/my-products'),
+};
+
 // Test API
 export const testAPI = {
   test: () => api.get('/test'),
