@@ -3,7 +3,6 @@ package com.synprod.SynProd.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -104,8 +103,10 @@ public class ProductComposition {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ProductComposition)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ProductComposition))
+            return false;
         ProductComposition that = (ProductComposition) o;
         return id != null && id.equals(that.id);
     }
