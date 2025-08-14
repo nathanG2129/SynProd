@@ -1,6 +1,7 @@
 package com.synprod.SynProd.dto;
 
 import com.synprod.SynProd.entity.Product;
+import com.synprod.SynProd.entity.ProductType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,8 +12,7 @@ public class ProductDto {
     private Long id;
     private String name;
     private String description;
-    private Double baseWeight;
-    private String baseWeightUnit;
+    private ProductType productType;
     private List<ProductCompositionDto> compositions;
     private List<ProductIngredientDto> additionalIngredients;
     private LocalDateTime createdAt;
@@ -23,12 +23,11 @@ public class ProductDto {
     public ProductDto() {
     }
 
-    public ProductDto(Long id, String name, String description, Double baseWeight, String baseWeightUnit) {
+    public ProductDto(Long id, String name, String description, ProductType productType) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.baseWeight = baseWeight;
-        this.baseWeightUnit = baseWeightUnit;
+        this.productType = productType;
     }
 
     // Static factory method
@@ -37,11 +36,10 @@ public class ProductDto {
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
-        dto.setBaseWeight(product.getBaseWeight());
-        dto.setBaseWeightUnit(product.getBaseWeightUnit());
+        dto.setProductType(product.getProductType());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
-        
+
         if (product.getCreatedBy() != null) {
             dto.setCreatedByName(product.getCreatedBy().getFullName());
         }
@@ -49,19 +47,17 @@ public class ProductDto {
         // Convert compositions
         if (product.getCompositions() != null) {
             dto.setCompositions(
-                product.getCompositions().stream()
-                    .map(ProductCompositionDto::fromEntity)
-                    .collect(Collectors.toList())
-            );
+                    product.getCompositions().stream()
+                            .map(ProductCompositionDto::fromEntity)
+                            .collect(Collectors.toList()));
         }
 
         // Convert additional ingredients
         if (product.getAdditionalIngredients() != null) {
             dto.setAdditionalIngredients(
-                product.getAdditionalIngredients().stream()
-                    .map(ProductIngredientDto::fromEntity)
-                    .collect(Collectors.toList())
-            );
+                    product.getAdditionalIngredients().stream()
+                            .map(ProductIngredientDto::fromEntity)
+                            .collect(Collectors.toList()));
         }
 
         return dto;
@@ -92,20 +88,25 @@ public class ProductDto {
         this.description = description;
     }
 
-    public Double getBaseWeight() {
-        return baseWeight;
+    public ProductType getProductType() {
+        return productType;
     }
 
-    public void setBaseWeight(Double baseWeight) {
-        this.baseWeight = baseWeight;
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
+    }
+
+    // Convenience methods for base weight information
+    public Double getBaseWeight() {
+        return productType != null ? productType.getBaseWeight() : null;
     }
 
     public String getBaseWeightUnit() {
-        return baseWeightUnit;
+        return productType != null ? productType.getBaseWeightUnit() : null;
     }
 
-    public void setBaseWeightUnit(String baseWeightUnit) {
-        this.baseWeightUnit = baseWeightUnit;
+    public String getBaseWeightDisplay() {
+        return productType != null ? productType.getBaseWeightDisplay() : null;
     }
 
     public List<ProductCompositionDto> getCompositions() {

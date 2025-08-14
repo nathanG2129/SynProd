@@ -1,9 +1,9 @@
 package com.synprod.SynProd.dto;
 
+import com.synprod.SynProd.entity.ProductType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -17,13 +17,8 @@ public class CreateProductRequest {
     @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
 
-    @NotNull(message = "Base weight is required")
-    @Positive(message = "Base weight must be positive")
-    private Double baseWeight;
-
-    @NotBlank(message = "Base weight unit is required")
-    @Size(max = 20, message = "Base weight unit must be less than 20 characters")
-    private String baseWeightUnit;
+    @NotNull(message = "Product type is required")
+    private ProductType productType;
 
     @Valid
     private List<ProductCompositionDto> compositions;
@@ -35,11 +30,10 @@ public class CreateProductRequest {
     public CreateProductRequest() {
     }
 
-    public CreateProductRequest(String name, String description, Double baseWeight, String baseWeightUnit) {
+    public CreateProductRequest(String name, String description, ProductType productType) {
         this.name = name;
         this.description = description;
-        this.baseWeight = baseWeight;
-        this.baseWeightUnit = baseWeightUnit;
+        this.productType = productType;
     }
 
     // Getters and Setters
@@ -59,20 +53,12 @@ public class CreateProductRequest {
         this.description = description;
     }
 
-    public Double getBaseWeight() {
-        return baseWeight;
+    public ProductType getProductType() {
+        return productType;
     }
 
-    public void setBaseWeight(Double baseWeight) {
-        this.baseWeight = baseWeight;
-    }
-
-    public String getBaseWeightUnit() {
-        return baseWeightUnit;
-    }
-
-    public void setBaseWeightUnit(String baseWeightUnit) {
-        this.baseWeightUnit = baseWeightUnit;
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
     }
 
     public List<ProductCompositionDto> getCompositions() {

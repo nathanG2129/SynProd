@@ -2,6 +2,7 @@ package com.synprod.SynProd.controller;
 
 import com.synprod.SynProd.dto.CreateProductRequest;
 import com.synprod.SynProd.dto.ProductDto;
+import com.synprod.SynProd.entity.ProductType;
 import com.synprod.SynProd.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -66,12 +67,10 @@ public class ProductController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String componentName,
             @RequestParam(required = false) String ingredientName,
-            @RequestParam(required = false) Double minWeight,
-            @RequestParam(required = false) Double maxWeight,
-            @RequestParam(required = false) String unit) {
+            @RequestParam(required = false) ProductType productType) {
         try {
             List<ProductDto> products = productService.searchProductsWithFilters(
-                    name, description, componentName, ingredientName, minWeight, maxWeight, unit
+                    name, description, componentName, ingredientName, productType
             );
             return ResponseEntity.ok(products);
         } catch (Exception e) {
@@ -101,12 +100,23 @@ public class ProductController {
         }
     }
 
+    // Search by product type (accessible by all authenticated users)
+    @GetMapping("/search/type")
+    public ResponseEntity<List<ProductDto>> searchByProductType(@RequestParam ProductType productType) {
+        try {
+            List<ProductDto> products = productService.searchProductsByType(productType);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // Get filter options (accessible by all authenticated users)
     @GetMapping("/filter-options")
-    public ResponseEntity<Map<String, List<String>>> getFilterOptions() {
+    public ResponseEntity<Map<String, Object>> getFilterOptions() {
         try {
-            Map<String, List<String>> options = new HashMap<>();
-            options.put("units", productService.getAvailableUnits());
+            Map<String, Object> options = new HashMap<>();
+            options.put("productTypes", productService.getAvailableProductTypes());
             options.put("components", productService.getAvailableComponents());
             options.put("ingredients", productService.getAvailableIngredients());
             return ResponseEntity.ok(options);

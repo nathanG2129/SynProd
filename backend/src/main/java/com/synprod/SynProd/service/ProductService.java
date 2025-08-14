@@ -7,6 +7,7 @@ import com.synprod.SynProd.dto.ProductIngredientDto;
 import com.synprod.SynProd.entity.Product;
 import com.synprod.SynProd.entity.ProductComposition;
 import com.synprod.SynProd.entity.ProductIngredient;
+import com.synprod.SynProd.entity.ProductType;
 import com.synprod.SynProd.entity.User;
 import com.synprod.SynProd.repository.ProductRepository;
 import com.synprod.SynProd.repository.UserRepository;
@@ -60,11 +61,9 @@ public class ProductService {
             String description,
             String componentName,
             String ingredientName,
-            Double minWeight,
-            Double maxWeight,
-            String unit) {
+            ProductType productType) {
         List<Product> products = productRepository.findWithFilters(
-                name, description, componentName, ingredientName, minWeight, maxWeight, unit);
+                name, description, componentName, ingredientName, productType);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -86,9 +85,17 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    // Search by product type
+    public List<ProductDto> searchProductsByType(ProductType productType) {
+        List<Product> products = productRepository.findByProductType(productType);
+        return products.stream()
+                .map(ProductDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     // Get filter options
-    public List<String> getAvailableUnits() {
-        return productRepository.findDistinctUnits();
+    public List<ProductType> getAvailableProductTypes() {
+        return productRepository.findDistinctProductTypes();
     }
 
     public List<String> getAvailableComponents() {
@@ -126,8 +133,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setBaseWeight(request.getBaseWeight());
-        product.setBaseWeightUnit(request.getBaseWeightUnit());
+        product.setProductType(request.getProductType());
         product.setCreatedBy(currentUser);
 
         // Add compositions
@@ -192,8 +198,7 @@ public class ProductService {
         // Update product fields
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setBaseWeight(request.getBaseWeight());
-        product.setBaseWeightUnit(request.getBaseWeightUnit());
+        product.setProductType(request.getProductType());
 
         // Clear existing compositions and ingredients
         product.getCompositions().clear();

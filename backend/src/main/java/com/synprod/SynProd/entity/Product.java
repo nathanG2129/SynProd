@@ -3,7 +3,6 @@ package com.synprod.SynProd.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
@@ -27,13 +26,10 @@ public class Product {
     @Column(name = "description")
     private String description;
 
-    @NotNull(message = "Base weight is required")
-    @Positive(message = "Base weight must be positive")
-    @Column(name = "base_weight", nullable = false)
-    private Double baseWeight;
-
-    @Column(name = "base_weight_unit", nullable = false)
-    private String baseWeightUnit = "kg"; // Default unit
+    @NotNull(message = "Product type is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_type", nullable = false)
+    private ProductType productType;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductComposition> compositions = new ArrayList<>();
@@ -66,11 +62,10 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String description, Double baseWeight, String baseWeightUnit) {
+    public Product(String name, String description, ProductType productType) {
         this.name = name;
         this.description = description;
-        this.baseWeight = baseWeight;
-        this.baseWeightUnit = baseWeightUnit;
+        this.productType = productType;
     }
 
     // Getters and Setters
@@ -98,20 +93,25 @@ public class Product {
         this.description = description;
     }
 
-    public Double getBaseWeight() {
-        return baseWeight;
+    public ProductType getProductType() {
+        return productType;
     }
 
-    public void setBaseWeight(Double baseWeight) {
-        this.baseWeight = baseWeight;
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
+    }
+
+    // Convenience methods for base weight information
+    public Double getBaseWeight() {
+        return productType != null ? productType.getBaseWeight() : null;
     }
 
     public String getBaseWeightUnit() {
-        return baseWeightUnit;
+        return productType != null ? productType.getBaseWeightUnit() : null;
     }
 
-    public void setBaseWeightUnit(String baseWeightUnit) {
-        this.baseWeightUnit = baseWeightUnit;
+    public String getBaseWeightDisplay() {
+        return productType != null ? productType.getBaseWeightDisplay() : null;
     }
 
     public List<ProductComposition> getCompositions() {

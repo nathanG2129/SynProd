@@ -1,6 +1,7 @@
 package com.synprod.SynProd.repository;
 
 import com.synprod.SynProd.entity.Product;
+import com.synprod.SynProd.entity.ProductType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -50,22 +51,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                      "LEFT JOIN p.additionalIngredients i " +
                      "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
                      "AND (:description IS NULL OR LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%'))) " +
-                     "AND (:componentName IS NULL OR LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))) "
-                     +
-                     "AND (:ingredientName IS NULL OR LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))) "
-                     +
-                     "AND (:minWeight IS NULL OR p.baseWeight >= :minWeight) " +
-                     "AND (:maxWeight IS NULL OR p.baseWeight <= :maxWeight) " +
-                     "AND (:unit IS NULL OR p.baseWeightUnit = :unit) " +
+                     "AND (:componentName IS NULL OR LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))) " +
+                     "AND (:ingredientName IS NULL OR LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))) " +
+                     "AND (:productType IS NULL OR p.productType = :productType) " +
                      "ORDER BY p.name ASC")
        List<Product> findWithFilters(
                      @Param("name") String name,
                      @Param("description") String description,
                      @Param("componentName") String componentName,
                      @Param("ingredientName") String ingredientName,
-                     @Param("minWeight") Double minWeight,
-                     @Param("maxWeight") Double maxWeight,
-                     @Param("unit") String unit);
+                     @Param("productType") ProductType productType);
 
        // Find products with specific component
        @Query("SELECT DISTINCT p FROM Product p " +
@@ -79,13 +74,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                      "WHERE LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))")
        List<Product> findByIngredientName(@Param("ingredientName") String ingredientName);
 
-       // Find products within weight range
-       @Query("SELECT p FROM Product p WHERE p.baseWeight >= :minWeight AND p.baseWeight <= :maxWeight ORDER BY p.baseWeight ASC")
-       List<Product> findByWeightRange(@Param("minWeight") Double minWeight, @Param("maxWeight") Double maxWeight);
+       // Find products by product type
+       @Query("SELECT p FROM Product p WHERE p.productType = :productType ORDER BY p.name ASC")
+       List<Product> findByProductType(@Param("productType") ProductType productType);
 
-       // Get all unique units used in products
-       @Query("SELECT DISTINCT p.baseWeightUnit FROM Product p ORDER BY p.baseWeightUnit")
-       List<String> findDistinctUnits();
+       // Get all product types used in products
+       @Query("SELECT DISTINCT p.productType FROM Product p ORDER BY p.productType")
+       List<ProductType> findDistinctProductTypes();
 
        // Get all unique component names
        @Query("SELECT DISTINCT c.componentName FROM ProductComposition c ORDER BY c.componentName")
