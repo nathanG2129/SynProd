@@ -265,7 +265,7 @@ export function ProductForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="product-form">
+      <form onSubmit={handleSubmit(onSubmit)} className="product-form" noValidate>
         {error && (
           <div className="error-message" style={{ marginBottom: '24px' }}>
             {error}
@@ -409,7 +409,6 @@ export function ProductForm() {
                   border: '1px solid #e2e8f0',
                   borderRadius: '8px',
                   padding: '16px',
-                  marginBottom: '12px',
                   background: '#fafafa'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
@@ -446,101 +445,132 @@ export function ProductForm() {
 
                     <div className="form-group">
                       <label>Percentage *</label>
-                      
-                      {/* Percentage Value Display */}
                       <div style={{
                         display: 'flex',
-                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        marginBottom: '16px'
+                        gap: '12px',
+                        padding: '8px 12px',
+                        border: '2px solid #d1d5db',
+                        borderRadius: '6px',
+                        background: 'white'
                       }}>
-                        <span style={{
-                          fontSize: '1.2rem',
+                        {/* Decrement Button */}
+                        <button
+                          type="button"
+                          onClick={() => updateComposition(index, 'percentage', Math.max(0, comp.percentage - 0.5))}
+                          style={{
+                            background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                            border: '1px solid rgba(145, 176, 41, 0.3)',
+                            borderRadius: '4px',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#445c3c',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #e8f5c8, #d4f1a8)';
+                            e.currentTarget.style.borderColor = 'rgba(145, 176, 41, 0.5)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #f1f6e8, #e8f5c8)';
+                            e.currentTarget.style.borderColor = 'rgba(145, 176, 41, 0.3)';
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                          </svg>
+                        </button>
+
+                        {/* Percentage Display */}
+                        <div style={{
+                          fontSize: '1.1rem',
                           fontWeight: '600',
-                          color: '#445c3c',
-                          background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-                          padding: '6px 14px',
-                          borderRadius: '8px',
-                          border: '1px solid rgba(145, 176, 41, 0.2)'
+                          background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                          color: 'white',
+                          padding: '2px 12px',
+                          borderRadius: '6px',
+                          minWidth: '50px',
+                          textAlign: 'center',
+                          boxShadow: '0 2px 4px rgba(145, 176, 41, 0.2)'
                         }}>
                           {comp.percentage.toFixed(1)}%
-                        </span>
-                        
-                        {/* Small number input for precise entry */}
-                        <input
-                          type="number"
-                          value={comp.percentage}
-                          onChange={(e) => updateComposition(index, 'percentage', parseFloat(e.target.value) || 0)}
-                          placeholder="0"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          required
-                          style={{
-                            width: '80px',
-                            padding: '6px 10px',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '6px',
-                            fontSize: '0.875rem',
-                            textAlign: 'center'
-                          }}
-                        />
-                      </div>
+                        </div>
 
-                      {/* MUI Slider - Primary Control */}
-                      <Slider
-                        value={comp.percentage}
-                        onChange={(_, newValue) => updateComposition(index, 'percentage', newValue as number)}
-                        min={0}
-                        max={100}
-                        step={0.1}
-                        marks={[
-                          { value: 0, label: '0%' },
-                          { value: 25, label: '25%' },
-                          { value: 50, label: '50%' },
-                          { value: 75, label: '75%' },
-                          { value: 100, label: '100%' }
-                        ]}
-                        sx={{
-                          color: '#91b029',
-                          height: 8,
-                          '& .MuiSlider-track': {
-                            background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-                            border: 'none',
-                            height: 6,
-                          },
-                          '& .MuiSlider-rail': {
-                            background: '#e2e8f0',
-                            height: 6,
-                            opacity: 1,
-                          },
-                          '& .MuiSlider-thumb': {
-                            height: 20,
-                            width: 20,
-                            backgroundColor: '#91b029',
-                            border: '3px solid #ffffff',
-                            boxShadow: '0 2px 8px rgba(145, 176, 41, 0.4)',
-                            '&:hover': {
-                              boxShadow: '0 4px 12px rgba(145, 176, 41, 0.6)',
-                              backgroundColor: '#7a9a1f',
-                            },
-                            '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                              boxShadow: '0 2px 8px rgba(145, 176, 41, 0.4), 0 0 0 3px rgba(145, 176, 41, 0.2)',
-                            },
-                          },
-                          '& .MuiSlider-mark': {
-                            backgroundColor: '#6b7a42',
-                            height: 4,
-                            width: 2,
-                          },
-                          '& .MuiSlider-markLabel': {
-                            fontSize: '0.75rem',
-                            color: '#6b7a42',
-                            fontWeight: 500,
-                          },
-                          marginBottom: '8px'
-                        }}
-                      />
+                        {/* Increment Button */}
+                        <button
+                          type="button"
+                          onClick={() => updateComposition(index, 'percentage', Math.min(100, comp.percentage + 0.5))}
+                          style={{
+                            background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                            border: '1px solid rgba(145, 176, 41, 0.3)',
+                            borderRadius: '4px',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#445c3c',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #e8f5c8, #d4f1a8)';
+                            e.currentTarget.style.borderColor = 'rgba(145, 176, 41, 0.5)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #f1f6e8, #e8f5c8)';
+                            e.currentTarget.style.borderColor = 'rgba(145, 176, 41, 0.3)';
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                          </svg>
+                        </button>
+
+                        {/* Slider */}
+                        <div style={{ flex: 1, marginLeft: '8px' }}>
+                          <Slider
+                            value={comp.percentage}
+                            onChange={(_, newValue) => updateComposition(index, 'percentage', newValue as number)}
+                            min={0}
+                            max={100}
+                            step={0.1}
+                            sx={{
+                              color: '#91b029',
+                              height: 6,
+                              '& .MuiSlider-track': {
+                                background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                                border: 'none',
+                                height: 4,
+                              },
+                              '& .MuiSlider-rail': {
+                                background: '#e2e8f0',
+                                height: 4,
+                                opacity: 1,
+                              },
+                              '& .MuiSlider-thumb': {
+                                height: 18,
+                                width: 18,
+                                backgroundColor: '#91b029',
+                                border: '2px solid #ffffff',
+                                boxShadow: '0 2px 6px rgba(145, 176, 41, 0.4)',
+                                '&:hover': {
+                                  boxShadow: '0 4px 10px rgba(145, 176, 41, 0.6)',
+                                  backgroundColor: '#7a9a1f',
+                                },
+                                '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                                  boxShadow: '0 2px 6px rgba(145, 176, 41, 0.4), 0 0 0 2px rgba(145, 176, 41, 0.2)',
+                                },
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
