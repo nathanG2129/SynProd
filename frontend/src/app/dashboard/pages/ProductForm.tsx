@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { productAPI } from '../../../services/api';
+import { Slider } from '@mui/material';
+  import { productAPI } from '../../../services/api';
 import { Product, ProductComposition, ProductIngredient, CreateProductRequest, ProductType, PRODUCT_TYPE_INFO, getProductTypeDisplayName } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useFormValidation } from '../../../hooks/useFormValidation';
@@ -445,15 +446,100 @@ export function ProductForm() {
 
                     <div className="form-group">
                       <label>Percentage *</label>
-                      <input
-                        type="number"
+                      
+                      {/* Percentage Value Display */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '16px'
+                      }}>
+                        <span style={{
+                          fontSize: '1.2rem',
+                          fontWeight: '600',
+                          color: '#445c3c',
+                          background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(145, 176, 41, 0.2)'
+                        }}>
+                          {comp.percentage.toFixed(1)}%
+                        </span>
+                        
+                        {/* Small number input for precise entry */}
+                        <input
+                          type="number"
+                          value={comp.percentage}
+                          onChange={(e) => updateComposition(index, 'percentage', parseFloat(e.target.value) || 0)}
+                          placeholder="0"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          required
+                          style={{
+                            width: '80px',
+                            padding: '6px 10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '0.875rem',
+                            textAlign: 'center'
+                          }}
+                        />
+                      </div>
+
+                      {/* MUI Slider - Primary Control */}
+                      <Slider
                         value={comp.percentage}
-                        onChange={(e) => updateComposition(index, 'percentage', parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        required
+                        onChange={(_, newValue) => updateComposition(index, 'percentage', newValue as number)}
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        marks={[
+                          { value: 0, label: '0%' },
+                          { value: 25, label: '25%' },
+                          { value: 50, label: '50%' },
+                          { value: 75, label: '75%' },
+                          { value: 100, label: '100%' }
+                        ]}
+                        sx={{
+                          color: '#91b029',
+                          height: 8,
+                          '& .MuiSlider-track': {
+                            background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                            border: 'none',
+                            height: 6,
+                          },
+                          '& .MuiSlider-rail': {
+                            background: '#e2e8f0',
+                            height: 6,
+                            opacity: 1,
+                          },
+                          '& .MuiSlider-thumb': {
+                            height: 20,
+                            width: 20,
+                            backgroundColor: '#91b029',
+                            border: '3px solid #ffffff',
+                            boxShadow: '0 2px 8px rgba(145, 176, 41, 0.4)',
+                            '&:hover': {
+                              boxShadow: '0 4px 12px rgba(145, 176, 41, 0.6)',
+                              backgroundColor: '#7a9a1f',
+                            },
+                            '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                              boxShadow: '0 2px 8px rgba(145, 176, 41, 0.4), 0 0 0 3px rgba(145, 176, 41, 0.2)',
+                            },
+                          },
+                          '& .MuiSlider-mark': {
+                            backgroundColor: '#6b7a42',
+                            height: 4,
+                            width: 2,
+                          },
+                          '& .MuiSlider-markLabel': {
+                            fontSize: '0.75rem',
+                            color: '#6b7a42',
+                            fontWeight: 500,
+                          },
+                          marginBottom: '8px'
+                        }}
                       />
                     </div>
                   </div>
