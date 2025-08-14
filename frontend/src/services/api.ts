@@ -108,9 +108,7 @@ export const productAPI = {
     description?: string;
     componentName?: string;
     ingredientName?: string;
-    minWeight?: number;
-    maxWeight?: number;
-    unit?: string;
+    productType?: string;
   }) => api.get('/products/search/advanced', { params: filters }),
 
   // Search by component
@@ -121,6 +119,10 @@ export const productAPI = {
   searchByIngredient: (ingredientName: string) => 
     api.get('/products/search/ingredient', { params: { ingredientName } }),
 
+  // Search by product type
+  searchByProductType: (productType: string) => 
+    api.get('/products/search/type', { params: { productType } }),
+
   // Get filter options
   getFilterOptions: () => api.get('/products/filter-options'),
   
@@ -128,8 +130,7 @@ export const productAPI = {
   createProduct: (data: {
     name: string;
     description?: string;
-    baseWeight: number;
-    baseWeightUnit: string;
+    productType: string;
     compositions?: Array<{
       componentName: string;
       percentage: number;
@@ -147,8 +148,7 @@ export const productAPI = {
   updateProduct: (id: number, data: {
     name: string;
     description?: string;
-    baseWeight: number;
-    baseWeightUnit: string;
+    productType: string;
     compositions?: Array<{
       componentName: string;
       percentage: number;

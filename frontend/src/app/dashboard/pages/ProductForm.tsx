@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product, ProductComposition, ProductIngredient, CreateProductRequest } from '../../../types/product';
+import { Product, ProductComposition, ProductIngredient, CreateProductRequest, ProductType, PRODUCT_TYPE_INFO, getProductTypeDisplayName } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useFormValidation } from '../../../hooks/useFormValidation';
 
@@ -26,8 +26,7 @@ export function ProductForm() {
   // Form validation
   const validationRules = {
     name: { required: true },
-    baseWeight: { required: true },
-    baseWeightUnit: { required: true }
+    productType: { required: true }
   };
 
   const {
@@ -42,8 +41,7 @@ export function ProductForm() {
     { 
       name: '', 
       description: '', 
-      baseWeight: '100', 
-      baseWeightUnit: 'kg' 
+      productType: ProductType.GREEK_YOGURT 
     },
     validationRules,
     { validateOnBlur: true, validateOnSubmit: true }
@@ -74,8 +72,7 @@ export function ProductForm() {
       // Update form with product data
       updateField('name', productData.name);
       updateField('description', productData.description || '');
-      updateField('baseWeight', productData.baseWeight.toString());
-      updateField('baseWeightUnit', productData.baseWeightUnit);
+      updateField('productType', productData.productType);
       
       // Set compositions and ingredients
       setCompositions(productData.compositions || []);
@@ -180,8 +177,7 @@ export function ProductForm() {
     const requestData: CreateProductRequest = {
       name: data.name,
       description: data.description || undefined,
-      baseWeight: parseFloat(data.baseWeight),
-      baseWeightUnit: data.baseWeightUnit,
+      productType: data.productType as ProductType,
       compositions: compositions.length > 0 ? compositions : undefined,
       additionalIngredients: ingredients.length > 0 ? ingredients : undefined
     };
@@ -330,36 +326,14 @@ export function ProductForm() {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="baseWeight">Base Weight *</label>
-              <input
-                type="number"
-                id="baseWeight"
-                name="baseWeight"
-                value={formData.baseWeight}
-                onChange={(e) => updateField('baseWeight', e.target.value)}
-                onBlur={() => handleBlur('baseWeight')}
-                className={getFieldValidationState('baseWeight')}
-                placeholder="100"
-                min="0"
-                step="0.01"
-                required
-              />
-              {getFieldError('baseWeight') && (
-                <div className="validation-message error">
-                  {getFieldError('baseWeight')}
-                </div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="baseWeightUnit">Unit *</label>
+              <label htmlFor="productType">Product Type *</label>
               <select
-                id="baseWeightUnit"
-                name="baseWeightUnit"
-                value={formData.baseWeightUnit}
-                onChange={(e) => updateField('baseWeightUnit', e.target.value)}
-                onBlur={() => handleBlur('baseWeightUnit')}
-                className={getFieldValidationState('baseWeightUnit')}
+                id="productType"
+                name="productType"
+                value={formData.productType}
+                onChange={(e) => updateField('productType', e.target.value)}
+                onBlur={() => handleBlur('productType')}
+                className={getFieldValidationState('productType')}
                 required
                 style={{
                   padding: '12px 16px',
@@ -369,12 +343,37 @@ export function ProductForm() {
                   width: '100%'
                 }}
               >
-                <option value="kg">Kilograms (kg)</option>
-                <option value="g">Grams (g)</option>
-                <option value="lb">Pounds (lb)</option>
-                <option value="oz">Ounces (oz)</option>
-                <option value="%">Percentage (%)</option>
+                {Object.entries(PRODUCT_TYPE_INFO).map(([type, info]) => (
+                  <option key={type} value={type}>
+                    {info.displayName} ({info.baseWeight}{info.baseWeightUnit})
+                  </option>
+                ))}
               </select>
+              {getFieldError('productType') && (
+                <div className="validation-message error">
+                  {getFieldError('productType')}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label style={{ color: '#6b7a42', fontWeight: '500' }}>Base Weight Information</label>
+              <div style={{
+                padding: '12px 16px',
+                border: '2px solid rgba(145, 176, 41, 0.2)',
+                borderRadius: '6px',
+                background: 'linear-gradient(135deg, #f9fcf4, #f1f6e8)',
+                fontSize: '1rem',
+                color: '#445c3c'
+              }}>
+                {formData.productType && PRODUCT_TYPE_INFO[formData.productType as ProductType] 
+                  ? `${PRODUCT_TYPE_INFO[formData.productType as ProductType].baseWeight}${PRODUCT_TYPE_INFO[formData.productType as ProductType].baseWeightUnit}`
+                  : 'Select a product type'
+                }
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#6b7a42', marginTop: '4px', margin: '4px 0 0 0' }}>
+                Base weight is automatically set based on product type
+              </p>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product } from '../../../types/product';
+import { Product, getProductTypeDisplayName, getProductBaseWeightDisplay } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 import { ProductFilters, SearchFilters } from '../components/ProductFilters';
 
@@ -12,7 +12,7 @@ export function ProductList() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilters, setActiveFilters] = useState<SearchFilters>({});
-  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'baseWeight'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'productType'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; product: Product | null }>({ show: false, product: null });
   const [isDeleting, setIsDeleting] = useState(false);
@@ -130,9 +130,9 @@ export function ProductList() {
           aValue = new Date(a.createdAt);
           bValue = new Date(b.createdAt);
           break;
-        case 'baseWeight':
-          aValue = a.baseWeight;
-          bValue = b.baseWeight;
+        case 'productType':
+          aValue = getProductTypeDisplayName(a.productType);
+          bValue = getProductTypeDisplayName(b.productType);
           break;
         default:
           return 0;
@@ -216,7 +216,7 @@ export function ProductList() {
             <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'baseWeight')}
+              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'productType')}
               style={{
                 padding: '6px 8px',
                 border: '1px solid #e2e8f0',
@@ -226,7 +226,7 @@ export function ProductList() {
             >
               <option value="name">Name</option>
               <option value="createdAt">Date Created</option>
-              <option value="baseWeight">Weight</option>
+              <option value="productType">Product Type</option>
             </select>
             
             <button
@@ -330,9 +330,19 @@ export function ProductList() {
                       padding: '4px 8px',
                       borderRadius: '4px',
                       fontSize: '0.75rem',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      border: '1px solid rgba(145, 176, 41, 0.2)'
                     }}>
-                      {product.baseWeight} {product.baseWeightUnit}
+                      {getProductTypeDisplayName(product.productType)}
+                    </span>
+                    
+                    <span style={{
+                      color: '#6b7a42',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      marginLeft: '8px'
+                    }}>
+                      {getProductBaseWeightDisplay(product.productType)}
                     </span>
                     
                     {product.compositions && product.compositions.length > 0 && (

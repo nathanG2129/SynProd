@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product } from '../../../types/product';
+import { Product, getProductTypeDisplayName, getProductBaseWeightDisplay } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 
 export function ProductDetail() {
@@ -169,9 +169,25 @@ export function ProductDetail() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
             <div style={{ marginBottom: '12px' }}>
+              <strong style={{ color: '#445c3c' }}>Product Type:</strong>
+              <span style={{ 
+                marginLeft: '8px', 
+                color: '#445c3c',
+                background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                border: '1px solid rgba(145, 176, 41, 0.2)',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}>
+                {getProductTypeDisplayName(product.productType)}
+              </span>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
               <strong style={{ color: '#445c3c' }}>Base Weight:</strong>
               <span style={{ marginLeft: '8px', color: '#64748b' }}>
-                {product.baseWeight} {product.baseWeightUnit}
+                {getProductBaseWeightDisplay(product.productType)}
               </span>
             </div>
             

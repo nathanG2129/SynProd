@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product } from '../../../types/product';
+import { Product, getProductTypeDisplayName, getProductBaseWeightDisplay } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 
 export function RecipeList() {
@@ -9,7 +9,7 @@ export function RecipeList() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'baseWeight'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'productType'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const { user } = useAuth();
 
@@ -49,9 +49,9 @@ export function RecipeList() {
           aValue = new Date(a.createdAt);
           bValue = new Date(b.createdAt);
           break;
-        case 'baseWeight':
-          aValue = a.baseWeight;
-          bValue = b.baseWeight;
+        case 'productType':
+          aValue = getProductTypeDisplayName(a.productType);
+          bValue = getProductTypeDisplayName(b.productType);
           break;
         default:
           return 0;
@@ -130,7 +130,7 @@ export function RecipeList() {
           <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'baseWeight')}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'productType')}
             style={{
               padding: '6px 8px',
               border: '2px solid #d1d5db',
@@ -140,7 +140,7 @@ export function RecipeList() {
           >
             <option value="name">Recipe Name</option>
             <option value="createdAt">Date Created</option>
-            <option value="baseWeight">Base Weight</option>
+            <option value="productType">Product Type</option>
           </select>
           
           <button
@@ -255,9 +255,19 @@ export function RecipeList() {
                       padding: '4px 8px',
                       borderRadius: '4px',
                       fontSize: '0.75rem',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      border: '1px solid rgba(145, 176, 41, 0.2)'
                     }}>
-                      Base: {product.baseWeight} {product.baseWeightUnit}
+                      {getProductTypeDisplayName(product.productType)}
+                    </span>
+                    
+                    <span style={{
+                      color: '#6b7a42',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      marginLeft: '8px'
+                    }}>
+                      Base: {getProductBaseWeightDisplay(product.productType)}
                     </span>
                     
                     {product.compositions && product.compositions.length > 0 && (

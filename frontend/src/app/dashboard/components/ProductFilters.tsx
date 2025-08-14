@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { productAPI } from '../../../services/api';
+import { ProductType, PRODUCT_TYPE_INFO, getProductTypeDisplayName } from '../../../types/product';
 
 interface FilterOptions {
-  units: string[];
+  productTypes: ProductType[];
   components: string[];
   ingredients: string[];
 }
@@ -18,15 +19,13 @@ export interface SearchFilters {
   description?: string;
   componentName?: string;
   ingredientName?: string;
-  minWeight?: number;
-  maxWeight?: number;
-  unit?: string;
+  productType?: ProductType;
 }
 
 export function ProductFilters({ onSearch, onClear, isSearching }: ProductFiltersProps) {
   const [filters, setFilters] = useState<SearchFilters>({});
   const [options, setOptions] = useState<FilterOptions>({
-    units: [],
+    productTypes: [],
     components: [],
     ingredients: []
   });
@@ -128,10 +127,10 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
             </div>
 
             <div className="form-group">
-              <label>Unit</label>
+              <label>Product Type</label>
               <select
-                value={filters.unit || ''}
-                onChange={(e) => updateFilter('unit', e.target.value || undefined)}
+                value={filters.productType || ''}
+                onChange={(e) => updateFilter('productType', e.target.value || undefined)}
                 style={{
                   padding: '12px 16px',
                   border: '2px solid #d1d5db',
@@ -140,9 +139,11 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
                   width: '100%'
                 }}
               >
-                <option value="">All Units</option>
-                {options.units.map(unit => (
-                  <option key={unit} value={unit}>{unit}</option>
+                <option value="">All Product Types</option>
+                {options.productTypes.map(productType => (
+                  <option key={productType} value={productType}>
+                    {getProductTypeDisplayName(productType)} ({PRODUCT_TYPE_INFO[productType].baseWeight}{PRODUCT_TYPE_INFO[productType].baseWeightUnit})
+                  </option>
                 ))}
               </select>
             </div>
@@ -182,31 +183,7 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Min Weight</label>
-              <input
-                type="number"
-                placeholder="0"
-                min="0"
-                step="0.01"
-                value={filters.minWeight || ''}
-                onChange={(e) => updateFilter('minWeight', e.target.value ? parseFloat(e.target.value) : undefined)}
-              />
-            </div>
 
-            <div className="form-group">
-              <label>Max Weight</label>
-              <input
-                type="number"
-                placeholder="1000"
-                min="0"
-                step="0.01"
-                value={filters.maxWeight || ''}
-                onChange={(e) => updateFilter('maxWeight', e.target.value ? parseFloat(e.target.value) : undefined)}
-              />
-            </div>
-          </div>
         </div>
       )}
 
