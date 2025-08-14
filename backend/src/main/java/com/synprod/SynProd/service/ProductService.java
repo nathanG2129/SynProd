@@ -42,7 +42,7 @@ public class ProductService {
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findByIdWithRecipeData(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        
+
         return ProductDto.fromEntity(product);
     }
 
@@ -62,11 +62,9 @@ public class ProductService {
             String ingredientName,
             Double minWeight,
             Double maxWeight,
-            String unit
-    ) {
+            String unit) {
         List<Product> products = productRepository.findWithFilters(
-                name, description, componentName, ingredientName, minWeight, maxWeight, unit
-        );
+                name, description, componentName, ingredientName, minWeight, maxWeight, unit);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -103,14 +101,16 @@ public class ProductService {
 
     // Create new product
     public ProductDto createProduct(CreateProductRequest request) {
-        // Validate that composition percentages add up to 100% (if any compositions are provided)
+        // Validate that composition percentages add up to 100% (if any compositions are
+        // provided)
         if (request.getCompositions() != null && !request.getCompositions().isEmpty()) {
             double totalPercentage = request.getCompositions().stream()
                     .mapToDouble(ProductCompositionDto::getPercentage)
                     .sum();
-            
+
             if (Math.abs(totalPercentage - 100.0) > 0.01) { // Allow small floating point differences
-                throw new RuntimeException("Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
+                throw new RuntimeException(
+                        "Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
             }
         }
 
@@ -159,21 +159,23 @@ public class ProductService {
 
         // Save product
         Product savedProduct = productRepository.save(product);
-        
+
         // Return full product data
         return ProductDto.fromEntity(savedProduct);
     }
 
     // Update existing product
     public ProductDto updateProduct(Long id, CreateProductRequest request) {
-        // Validate that composition percentages add up to 100% (if any compositions are provided)
+        // Validate that composition percentages add up to 100% (if any compositions are
+        // provided)
         if (request.getCompositions() != null && !request.getCompositions().isEmpty()) {
             double totalPercentage = request.getCompositions().stream()
                     .mapToDouble(ProductCompositionDto::getPercentage)
                     .sum();
-            
+
             if (Math.abs(totalPercentage - 100.0) > 0.01) { // Allow small floating point differences
-                throw new RuntimeException("Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
+                throw new RuntimeException(
+                        "Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
             }
         }
 
@@ -181,7 +183,8 @@ public class ProductService {
         Product product = productRepository.findByIdWithRecipeData(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        // Check if new name conflicts with existing products (excluding current product)
+        // Check if new name conflicts with existing products (excluding current
+        // product)
         if (productRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
             throw new RuntimeException("Product with name '" + request.getName() + "' already exists");
         }
@@ -225,7 +228,7 @@ public class ProductService {
 
         // Save updated product
         Product savedProduct = productRepository.save(product);
-        
+
         // Return updated product data
         return ProductDto.fromEntity(savedProduct);
     }
@@ -234,7 +237,7 @@ public class ProductService {
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        
+
         productRepository.delete(product);
     }
 
@@ -251,7 +254,7 @@ public class ProductService {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        
+
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Current user not found"));
     }
