@@ -5,6 +5,7 @@ import { ForgotPassword } from '../app/auth/forgot-password';
 import { VerifyEmail } from '../app/auth/verify-email';
 import { DashboardLayout } from '../app/dashboard/layout';
 import { DashboardHome } from '../app/dashboard/pages/DashboardHome';
+import { RecipeList } from '../app/dashboard/pages/RecipeList';
 import { ProductList } from '../app/dashboard/pages/ProductList';
 import { ProductDetail } from '../app/dashboard/pages/ProductDetail';
 import { ProductForm } from '../app/dashboard/pages/ProductForm';
@@ -63,7 +64,7 @@ export function App() {
           }
         >
           <Route index element={<DashboardHome />} />
-          <Route path="recipes" element={<ProductList />} />
+          <Route path="recipes" element={<RecipeList />} />
           <Route path="products" element={<ProductList />} />
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id" element={<ProductDetail />} />

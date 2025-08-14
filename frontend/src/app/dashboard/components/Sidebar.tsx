@@ -33,15 +33,14 @@ export function Sidebar({ user, collapsed, onCollapse, onLogout }: SidebarProps)
     },
     {
       path: '/dashboard/recipes',
-      label: 'Recipes',
+      label: 'Recipe Library',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-          <path d="M12 11h4"/>
-          <path d="M12 16h4"/>
-          <path d="M8 11h.01"/>
-          <path d="M8 16h.01"/>
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <path d="M8 7h8"/>
+          <path d="M8 11h8"/>
+          <path d="M8 15h6"/>
         </svg>
       ),
       roles: ['PRODUCTION', 'MANAGER', 'ADMIN']
@@ -51,9 +50,9 @@ export function Sidebar({ user, collapsed, onCollapse, onLogout }: SidebarProps)
       label: 'Product Management',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
-          <line x1="12" y1="22.08" x2="12" y2="12"/>
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          <path d="M8 12h8"/>
+          <path d="M12 8v8"/>
         </svg>
       ),
       roles: ['MANAGER', 'ADMIN']

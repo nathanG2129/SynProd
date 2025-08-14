@@ -22,6 +22,32 @@ export function ProductList() {
   const canManageProducts = user?.role === 'MANAGER' || user?.role === 'ADMIN';
   const canDeleteProducts = user?.role === 'ADMIN';
 
+  // Redirect if user cannot manage products
+  if (!canManageProducts) {
+    return (
+      <div className="dashboard-home">
+        <div className="page-header">
+          <h1 className="page-title">Access Denied</h1>
+        </div>
+        
+        <div className="content-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" style={{ margin: '0 auto 16px' }}>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h3>Access Denied</h3>
+          <p style={{ color: '#64748b', marginBottom: '24px' }}>
+            You need Manager or Admin privileges to access product management.
+          </p>
+          <Link to="/dashboard/recipes" className="btn btn-primary">
+            View Recipes Instead
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     loadProducts();
   }, []);
@@ -150,8 +176,8 @@ export function ProductList() {
       <div className="page-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h1 className="page-title">Products & Recipes</h1>
-            <p className="page-subtitle">Browse and search product recipes</p>
+            <h1 className="page-title">Product Management</h1>
+            <p className="page-subtitle">Create, edit, and manage product recipes</p>
           </div>
           
           {canManageProducts && (
@@ -257,7 +283,7 @@ export function ProductList() {
       ) : (
         <div className="products-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
           gap: '24px'
         }}>
           {displayProducts.map((product) => (
@@ -341,34 +367,55 @@ export function ProductList() {
                 </div>
               </Link>
               
-              {canManageProducts && (
-                <div style={{
-                  borderTop: '1px solid #e2e8f0',
-                  paddingTop: '12px',
-                  display: 'flex',
-                  gap: '8px'
-                }}>
+              <div style={{
+                borderTop: '2px solid #e2e8f0',
+                paddingTop: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <Link 
                     to={`/dashboard/products/${product.id}/edit`}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, fontSize: '0.75rem', padding: '6px 12px' }}
+                    className="btn btn-primary"
+                    style={{ flex: 1, fontSize: '0.75rem', padding: '8px 12px' }}
                   >
-                    Edit
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+                    </svg>
+                    Edit Product
                   </Link>
-                  {canDeleteProducts && (
-                    <button 
-                      className="btn btn-danger"
-                      style={{ flex: 1, fontSize: '0.75rem', padding: '6px 12px' }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setDeleteConfirm({ show: true, product });
-                      }}
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <Link 
+                    to={`/dashboard/products/${product.id}`}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, fontSize: '0.75rem', padding: '8px 12px' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    View Details
+                  </Link>
                 </div>
-              )}
+                {canDeleteProducts && (
+                  <button 
+                    className="btn btn-danger"
+                    style={{ fontSize: '0.75rem', padding: '8px 12px', width: '100%' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDeleteConfirm({ show: true, product });
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    </svg>
+                    Delete Product
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
