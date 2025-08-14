@@ -229,15 +229,19 @@ export function RecipeDetail() {
             </select>
           </div>
 
-          <div style={{ 
-            background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-            color: 'white',
-            padding: '12px 16px',
-            borderRadius: '6px',
-            textAlign: 'center',
-            fontWeight: '600'
-          }}>
-            Total: {totalWeight.toFixed(0)}g
+          <div className="form-group">
+            <label>Total Weight</label>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '6px',
+              textAlign: 'center',
+              fontWeight: '600',
+              fontSize: '1rem'
+            }}>
+              {totalWeight.toFixed(0)}g
+            </div>
           </div>
         </div>
       </div>
@@ -296,7 +300,7 @@ export function RecipeDetail() {
                       fontSize: '1rem',
                       textAlign: 'center'
                     }}>
-                      {composition.percentage}%
+                      {composition.percentage.toFixed(2)}%
                     </div>
                     
                     <div style={{

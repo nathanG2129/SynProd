@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,16 @@ public class ProductService {
     public ProductService(ProductRepository productRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+    }
+
+    // Helper method to round percentage to 2 decimal places
+    private Double roundPercentage(Double percentage) {
+        if (percentage == null) {
+            return null;
+        }
+        return BigDecimal.valueOf(percentage)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     // Get all products with basic info (for product list)
@@ -150,7 +162,7 @@ public class ProductService {
                 ProductCompositionDto compDto = request.getCompositions().get(i);
                 ProductComposition composition = new ProductComposition();
                 composition.setComponentName(compDto.getComponentName());
-                composition.setPercentage(compDto.getPercentage());
+                composition.setPercentage(roundPercentage(compDto.getPercentage()));
                 composition.setNotes(compDto.getNotes());
                 composition.setSortOrder(i);
                 product.addComposition(composition);
@@ -225,7 +237,7 @@ public class ProductService {
                 ProductCompositionDto compDto = request.getCompositions().get(i);
                 ProductComposition composition = new ProductComposition();
                 composition.setComponentName(compDto.getComponentName());
-                composition.setPercentage(compDto.getPercentage());
+                composition.setPercentage(roundPercentage(compDto.getPercentage()));
                 composition.setNotes(compDto.getNotes());
                 composition.setSortOrder(i);
                 product.addComposition(composition);

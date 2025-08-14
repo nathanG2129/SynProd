@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product, getProductTypeDisplayName, getProductBaseWeightDisplay } from '../../../types/product';
+import { Product, getProductTypeDisplayName } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 import { ProductFilters, SearchFilters } from '../components/ProductFilters';
 
@@ -334,15 +334,6 @@ export function ProductList() {
                       border: '1px solid rgba(145, 176, 41, 0.2)'
                     }}>
                       {getProductTypeDisplayName(product.productType)}
-                    </span>
-                    
-                    <span style={{
-                      color: '#6b7a42',
-                      fontSize: '0.75rem',
-                      fontWeight: '500',
-                      marginLeft: '8px'
-                    }}>
-                      {getProductBaseWeightDisplay(product.productType)}
                     </span>
                     
                     {product.compositions && product.compositions.length > 0 && (

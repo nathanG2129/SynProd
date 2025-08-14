@@ -346,7 +346,7 @@ export function ProductForm() {
               >
                 {Object.entries(PRODUCT_TYPE_INFO).map(([type, info]) => (
                   <option key={type} value={type}>
-                    {info.displayName} ({info.baseWeight}{info.baseWeightUnit})
+                    {info.displayName}
                   </option>
                 ))}
               </select>
@@ -355,26 +355,6 @@ export function ProductForm() {
                   {getFieldError('productType')}
                 </div>
               )}
-            </div>
-
-            <div className="form-group">
-              <label style={{ color: '#6b7a42', fontWeight: '500' }}>Base Weight Information</label>
-              <div style={{
-                padding: '12px 16px',
-                border: '2px solid rgba(145, 176, 41, 0.2)',
-                borderRadius: '6px',
-                background: 'linear-gradient(135deg, #f9fcf4, #f1f6e8)',
-                fontSize: '1rem',
-                color: '#445c3c'
-              }}>
-                {formData.productType && PRODUCT_TYPE_INFO[formData.productType as ProductType] 
-                  ? `${PRODUCT_TYPE_INFO[formData.productType as ProductType].baseWeight}${PRODUCT_TYPE_INFO[formData.productType as ProductType].baseWeightUnit}`
-                  : 'Select a product type'
-                }
-              </div>
-              <p style={{ fontSize: '0.8rem', color: '#6b7a42', marginTop: '4px', margin: '4px 0 0 0' }}>
-                Base weight is automatically set based on product type
-              </p>
             </div>
           </div>
         </div>

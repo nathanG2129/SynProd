@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { productAPI } from '../../../services/api';
-import { ProductType, PRODUCT_TYPE_INFO, getProductTypeDisplayName } from '../../../types/product';
+import { ProductType, getProductTypeDisplayName } from '../../../types/product';
 
 interface FilterOptions {
   productTypes: ProductType[];
@@ -142,7 +142,7 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
                 <option value="">All Product Types</option>
                 {options.productTypes.map(productType => (
                   <option key={productType} value={productType}>
-                    {getProductTypeDisplayName(productType)} ({PRODUCT_TYPE_INFO[productType].baseWeight}{PRODUCT_TYPE_INFO[productType].baseWeightUnit})
+                    {getProductTypeDisplayName(productType)}
                   </option>
                 ))}
               </select>

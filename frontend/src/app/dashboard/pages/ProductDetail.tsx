@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
-import { Product, getProductTypeDisplayName, getProductBaseWeightDisplay } from '../../../types/product';
+import { Product, getProductTypeDisplayName } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
 
 export function ProductDetail() {
@@ -184,12 +184,6 @@ export function ProductDetail() {
               </span>
             </div>
 
-            <div style={{ marginBottom: '12px' }}>
-              <strong style={{ color: '#445c3c' }}>Base Weight:</strong>
-              <span style={{ marginLeft: '8px', color: '#64748b' }}>
-                {getProductBaseWeightDisplay(product.productType)}
-              </span>
-            </div>
             
             {product.description && (
               <div style={{ marginBottom: '12px' }}>
@@ -274,7 +268,7 @@ export function ProductDetail() {
                     fontWeight: '600',
                     fontSize: '1rem'
                   }}>
-                    {composition.percentage}%
+                    {composition.percentage.toFixed(2)}%
                   </div>
                 </div>
               ))}
