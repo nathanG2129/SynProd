@@ -39,3 +39,18 @@ button {
 html {
   scroll-behavior: smooth;
 }
+
+/* Global form input styling for consistency */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 2px solid #d1d5db !important;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #445c3c !important;
+  box-shadow: 0 0 0 3px rgba(68, 92, 60, 0.1) !important;
+}

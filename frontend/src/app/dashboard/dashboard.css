@@ -3,21 +3,21 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f6e8 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f7e8 100%);
 }
 
 /* Header Styles */
 .dashboard-header {
   height: 64px;
-  background: linear-gradient(135deg, #ffffff 0%, #f9fcf4 100%);
-  border-bottom: 2px solid #91b029;
+  background: #ffffff;
+  border-bottom: 3px solid #445c3c;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
   position: relative;
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(145, 176, 41, 0.1);
+  box-shadow: 0 2px 12px rgba(68, 92, 60, 0.15);
 }
 
 .header-left {
@@ -142,13 +142,13 @@
 /* Sidebar Styles */
 .dashboard-sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #ffffff 0%, #f9fcf4 100%);
-  border-right: 2px solid rgba(145, 176, 41, 0.2);
+  background: #ffffff;
+  border-right: 2px solid rgba(68, 92, 60, 0.3);
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
   overflow: hidden;
-  box-shadow: 2px 0 8px rgba(145, 176, 41, 0.05);
+  box-shadow: 2px 0 12px rgba(68, 92, 60, 0.1);
 }
 
 .dashboard-sidebar.collapsed {
@@ -238,7 +238,7 @@
 /* Sidebar Footer */
 .sidebar-footer {
   padding: 16px;
-  border-top: 2px solid rgba(145, 176, 41, 0.2);
+  border-top: 2px solid rgba(68, 92, 60, 0.2);
   background: linear-gradient(135deg, #f9fcf4, #f1f6e8);
 }
 
@@ -280,15 +280,15 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f6e8 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f7e8 100%);
 }
 
 /* Content Cards */
 .content-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fefffe 100%);
+  background: #ffffff;
   border-radius: 12px;
-  border: 2px solid rgba(145, 176, 41, 0.15);
-  box-shadow: 0 6px 20px rgba(145, 176, 41, 0.12), 0 2px 6px rgba(145, 176, 41, 0.08);
+  border: 2px solid rgba(68, 92, 60, 0.2);
+  box-shadow: 0 4px 12px rgba(68, 92, 60, 0.15), 0 2px 4px rgba(68, 92, 60, 0.1);
   padding: 24px;
   margin-bottom: 24px;
   transition: all 0.3s ease;
@@ -302,14 +302,14 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(135deg, #91b029, #7a9a1f);
+  background: linear-gradient(135deg, #445c3c, #91b029);
   border-radius: 12px 12px 0 0;
 }
 
 .content-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(145, 176, 41, 0.20), 0 4px 12px rgba(145, 176, 41, 0.15);
-  border-color: rgba(145, 176, 41, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(68, 92, 60, 0.25), 0 4px 8px rgba(68, 92, 60, 0.15);
+  border-color: rgba(68, 92, 60, 0.35);
 }
 
 .content-card h1,
@@ -627,16 +627,16 @@
 
 .composition-form-item,
 .ingredient-form-item {
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border: 2px solid rgba(68, 92, 60, 0.2);
   border-radius: 8px;
   transition: all 0.2s ease;
 }
 
 .composition-form-item:hover,
 .ingredient-form-item:hover {
-  border-color: rgba(145, 176, 41, 0.3);
-  box-shadow: 0 2px 8px rgba(145, 176, 41, 0.1);
+  border-color: rgba(68, 92, 60, 0.4);
+  box-shadow: 0 2px 8px rgba(68, 92, 60, 0.15);
 }
 
 .success-message {

@@ -318,7 +318,7 @@ export function ProductForm() {
               rows={3}
               style={{
                 padding: '12px 16px',
-                border: '1px solid #e2e8f0',
+                border: '2px solid #d1d5db',
                 borderRadius: '6px',
                 fontSize: '1rem',
                 width: '100%',
@@ -363,7 +363,7 @@ export function ProductForm() {
                 required
                 style={{
                   padding: '12px 16px',
-                  border: '1px solid #e2e8f0',
+                  border: '2px solid #d1d5db',
                   borderRadius: '6px',
                   fontSize: '1rem',
                   width: '100%'
@@ -588,7 +588,7 @@ export function ProductForm() {
                       required
                       style={{
                         padding: '12px 16px',
-                        border: '1px solid #e2e8f0',
+                        border: '2px solid #d1d5db',
                         borderRadius: '6px',
                         fontSize: '1rem',
                         width: '100%'
