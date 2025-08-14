@@ -29,13 +29,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                      "ORDER BY p.name ASC")
        List<Product> findAllWithRecipeData();
 
-       // Find single product with full recipe data
+       // Find single product with full recipe data (fetch user first, then collections
+       // separately)
        @Query("SELECT p FROM Product p " +
-                     "LEFT JOIN FETCH p.compositions " +
-                     "LEFT JOIN FETCH p.additionalIngredients " +
                      "LEFT JOIN FETCH p.createdBy " +
                      "WHERE p.id = :id")
        Optional<Product> findByIdWithRecipeData(@Param("id") Long id);
+
+       // Find product compositions for a specific product
+       @Query("SELECT p FROM Product p " +
+                     "LEFT JOIN FETCH p.compositions " +
+                     "WHERE p.id = :id")
+       Optional<Product> findByIdWithCompositions(@Param("id") Long id);
+
+       // Find product ingredients for a specific product
+       @Query("SELECT p FROM Product p " +
+                     "LEFT JOIN FETCH p.additionalIngredients " +
+                     "WHERE p.id = :id")
+       Optional<Product> findByIdWithIngredients(@Param("id") Long id);
 
        // Check if product name exists (excluding specific ID for updates)
        @Query("SELECT COUNT(p) > 0 FROM Product p WHERE LOWER(p.name) = LOWER(:name) AND (:id IS NULL OR p.id != :id)")
@@ -51,8 +62,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                      "LEFT JOIN p.additionalIngredients i " +
                      "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
                      "AND (:description IS NULL OR LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%'))) " +
-                     "AND (:componentName IS NULL OR LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))) " +
-                     "AND (:ingredientName IS NULL OR LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))) " +
+                     "AND (:componentName IS NULL OR LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))) "
+                     +
+                     "AND (:ingredientName IS NULL OR LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))) "
+                     +
                      "AND (:productType IS NULL OR p.productType = :productType) " +
                      "ORDER BY p.name ASC")
        List<Product> findWithFilters(

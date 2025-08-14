@@ -41,8 +41,16 @@ public class ProductService {
 
     // Get product by ID with full recipe data
     public ProductDto getProductById(Long id) {
+        // First, get the product with basic info and user
         Product product = productRepository.findByIdWithRecipeData(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        // Then fetch compositions and ingredients separately to avoid Cartesian product
+        // issues
+        productRepository.findByIdWithCompositions(id).ifPresent(p -> product.setCompositions(p.getCompositions()));
+
+        productRepository.findByIdWithIngredients(id)
+                .ifPresent(p -> product.setAdditionalIngredients(p.getAdditionalIngredients()));
 
         return ProductDto.fromEntity(product);
     }
@@ -185,9 +193,16 @@ public class ProductService {
             }
         }
 
-        // Check if product exists
+        // Check if product exists and load with full recipe data
         Product product = productRepository.findByIdWithRecipeData(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        // Load compositions and ingredients separately to avoid Cartesian product
+        // issues
+        productRepository.findByIdWithCompositions(id).ifPresent(p -> product.setCompositions(p.getCompositions()));
+
+        productRepository.findByIdWithIngredients(id)
+                .ifPresent(p -> product.setAdditionalIngredients(p.getAdditionalIngredients()));
 
         // Check if new name conflicts with existing products (excluding current
         // product)
