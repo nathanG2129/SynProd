@@ -9,6 +9,7 @@ import { RecipeList } from '../app/dashboard/pages/RecipeList';
 import { ProductList } from '../app/dashboard/pages/ProductList';
 import { ProductDetail } from '../app/dashboard/pages/ProductDetail';
 import { ProductForm } from '../app/dashboard/pages/ProductForm';
+import { RecipeDetail } from '../app/dashboard/pages/RecipeDetail';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 import './auth/auth.css';
@@ -65,6 +66,7 @@ export function App() {
         >
           <Route index element={<DashboardHome />} />
           <Route path="recipes" element={<RecipeList />} />
+          <Route path="recipes/:id" element={<RecipeDetail />} />
           <Route path="products" element={<ProductList />} />
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id" element={<ProductDetail />} />

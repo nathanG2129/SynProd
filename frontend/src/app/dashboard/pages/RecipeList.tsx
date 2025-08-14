@@ -216,7 +216,7 @@ export function RecipeList() {
               height: 'fit-content'
             }}>
               <Link 
-                to={`/dashboard/products/${product.id}`} 
+                to={`/dashboard/recipes/${product.id}`} 
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div style={{ marginBottom: '16px' }}>
@@ -358,7 +358,7 @@ export function RecipeList() {
                 textAlign: 'center'
               }}>
                 <Link 
-                  to={`/dashboard/products/${product.id}`}
+                  to={`/dashboard/recipes/${product.id}`}
                   className="btn btn-primary"
                   style={{ fontSize: '0.75rem', padding: '8px 16px', width: '100%' }}
                 >
