@@ -277,182 +277,185 @@ export function RecipeDetail() {
         </div>
       </div>
 
-      {/* Recipe Composition with Calculated Weights */}
-      {product.compositions && product.compositions.length > 0 && (
-        <div className="content-card">
-          <h2>Recipe Composition & Calculated Weights</h2>
-          <div className="composition-list">
-            {product.compositions
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((composition, index) => {
-                const componentWeight = calculateComponentWeight(composition.percentage);
-                return (
-                  <div 
-                    key={composition.id || index} 
-                    className="composition-item"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '2fr 1fr 1fr',
-                      gap: '16px',
-                      alignItems: 'center',
-                      padding: '16px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                    }}
-                  >
-                    <div>
-                      <h4 style={{ 
-                        margin: '0 0 4px 0', 
-                        color: '#1e293b',
-                        fontSize: '1rem'
-                      }}>
-                        {composition.componentName}
-                      </h4>
-                      {composition.notes && (
-                        <p style={{ 
-                          margin: '0',
-                          fontSize: '0.875rem',
-                          color: '#64748b',
-                          fontStyle: 'italic'
+      {/* Recipe Composition & Additional Ingredients (side-by-side on wide, stacked on narrow) */}
+      {(product.compositions && product.compositions.length > 0) || (product.additionalIngredients && product.additionalIngredients.length > 0) ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start' }}>
+          {product.compositions && product.compositions.length > 0 && (
+            <div className="content-card" style={{ padding: '16px' }}>
+              <h2 style={{ marginTop: 0 }}>Recipe Composition & Calculated Weights</h2>
+              <div className="composition-list">
+                {product.compositions
+                  .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                  .map((composition, index) => {
+                    const componentWeight = calculateComponentWeight(composition.percentage);
+                    return (
+                      <div 
+                        key={composition.id || index} 
+                        className="composition-item"
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '2fr 1fr 1fr',
+                          gap: '12px',
+                          alignItems: 'center',
+                          padding: '12px',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          marginBottom: '8px',
+                          background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
+                        }}
+                      >
+                        <div>
+                          <h4 style={{ 
+                            margin: '0 0 4px 0', 
+                            color: '#1e293b',
+                            fontSize: '1rem'
+                          }}>
+                            {composition.componentName}
+                          </h4>
+                          {composition.notes && (
+                            <p style={{ 
+                              margin: '0',
+                              fontSize: '0.875rem',
+                              color: '#64748b',
+                              fontStyle: 'italic'
+                            }}>
+                              {composition.notes}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                          color: 'white',
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          fontWeight: '600',
+                          fontSize: '0.95rem',
+                          textAlign: 'center'
                         }}>
-                          {composition.notes}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div style={{
-                      background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontWeight: '600',
-                      fontSize: '1rem',
-                      textAlign: 'center'
-                    }}>
-                      {composition.percentage.toFixed(2)}%
-                    </div>
-                    
-                    <div style={{
-                      background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-                      color: '#445c3c',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontWeight: '600',
-                      fontSize: '1rem',
-                      border: '1px solid rgba(145, 176, 41, 0.2)',
-                      textAlign: 'center'
-                    }}>
-                      {componentWeight.toFixed(1)}g
-                    </div>
-                  </div>
-                );
-              })}
-            
-            {/* Total Composition Check */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr 1fr',
-              gap: '16px',
-              alignItems: 'center',
-              padding: '12px 16px',
-              background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-              border: '1px solid #91b029',
-              borderRadius: '8px',
-              fontWeight: '600',
-              color: '#445c3c'
-            }}>
-              <span>Total Composition:</span>
-              <span style={{ textAlign: 'center' }}>
-                {product.compositions.reduce((sum, comp) => sum + comp.percentage, 0).toFixed(1)}%
-              </span>
-              <span style={{ textAlign: 'center' }}>
-                {totalWeight.toFixed(1)}g
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Additional Ingredients with Calculated Amounts */}
-      {product.additionalIngredients && product.additionalIngredients.length > 0 && (
-        <div className="content-card">
-          <h2>Additional Ingredients & Calculated Amounts</h2>
-          <div className="ingredients-list">
-            {product.additionalIngredients
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((ingredient, index) => {
-                const calculatedAmount = calculateIngredientForWeight(ingredient.quantity, ingredient.unit, baseWeight);
-                return (
-                  <div 
-                    key={ingredient.id || index}
-                    className="ingredient-item"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '2fr 1fr 1fr',
-                      gap: '16px',
-                      alignItems: 'center',
-                      padding: '16px',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                    }}
-                  >
-                    <div>
-                      <h4 style={{ 
-                        margin: '0 0 4px 0', 
-                        color: '#1e293b',
-                        fontSize: '1rem'
-                      }}>
-                        {ingredient.ingredientName}
-                      </h4>
-                      {ingredient.notes && (
-                        <p style={{ 
-                          margin: '0',
-                          fontSize: '0.875rem',
-                          color: '#64748b',
-                          fontStyle: 'italic'
+                          {composition.percentage.toFixed(2)}%
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                          color: '#445c3c',
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          fontWeight: '600',
+                          fontSize: '0.95rem',
+                          border: '1px solid rgba(145, 176, 41, 0.2)',
+                          textAlign: 'center'
                         }}>
-                          {ingredient.notes}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div style={{
-                      background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-                      color: '#445c3c',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontWeight: '600',
-                      fontSize: '0.875rem',
-                      border: '1px solid rgba(145, 176, 41, 0.2)',
-                      textAlign: 'center'
-                    }}>
-                      {ingredient.quantity} {ingredient.unit}
-                      <div style={{ fontSize: '0.75rem', fontWeight: '400', color: '#64748b' }}>
-                        per {baseWeight}g
+                          {componentWeight.toFixed(1)}g
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div style={{
-                      background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontWeight: '600',
-                      fontSize: '1rem',
-                      textAlign: 'center'
-                    }}>
-                      {calculatedAmount.toFixed(2)} {ingredient.unit}
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
+                    );
+                  })}
+                
+                {/* Total Composition Check */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr 1fr',
+                  gap: '12px',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                  border: '1px solid #91b029',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  color: '#445c3c'
+                }}>
+                  <span>Total Composition:</span>
+                  <span style={{ textAlign: 'center' }}>
+                    {product.compositions.reduce((sum, comp) => sum + comp.percentage, 0).toFixed(1)}%
+                  </span>
+                  <span style={{ textAlign: 'center' }}>
+                    {totalWeight.toFixed(1)}g
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {product.additionalIngredients && product.additionalIngredients.length > 0 && (
+            <div className="content-card" style={{ padding: '16px' }}>
+              <h2 style={{ marginTop: 0 }}>Additional Ingredients & Calculated Amounts</h2>
+              <div className="ingredients-list">
+                {product.additionalIngredients
+                  .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                  .map((ingredient, index) => {
+                    const calculatedAmount = calculateIngredientForWeight(ingredient.quantity, ingredient.unit, baseWeight);
+                    return (
+                      <div 
+                        key={ingredient.id || index}
+                        className="ingredient-item"
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '2fr 1fr 1fr',
+                          gap: '12px',
+                          alignItems: 'center',
+                          padding: '12px',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          marginBottom: '8px',
+                          background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
+                        }}
+                      >
+                        <div>
+                          <h4 style={{ 
+                            margin: '0 0 4px 0', 
+                            color: '#1e293b',
+                            fontSize: '1rem'
+                          }}>
+                            {ingredient.ingredientName}
+                          </h4>
+                          {ingredient.notes && (
+                            <p style={{ 
+                              margin: '0',
+                              fontSize: '0.875rem',
+                              color: '#64748b',
+                              fontStyle: 'italic'
+                            }}>
+                              {ingredient.notes}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                          color: '#445c3c',
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          fontWeight: '600',
+                          fontSize: '0.85rem',
+                          border: '1px solid rgba(145, 176, 41, 0.2)',
+                          textAlign: 'center'
+                        }}>
+                          {ingredient.quantity} {ingredient.unit}
+                          <div style={{ fontSize: '0.75rem', fontWeight: '400', color: '#64748b' }}>
+                            per {baseWeight}g
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                          color: 'white',
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          fontWeight: '600',
+                          fontSize: '0.95rem',
+                          textAlign: 'center'
+                        }}>
+                          {calculatedAmount.toFixed(2)} {ingredient.unit}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
       {/* No Recipe Data */}
       {(!product.compositions || product.compositions.length === 0) && 
