@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { productAPI } from '../../../services/api';
 import { ProductType, getProductTypeDisplayName } from '../../../types/product';
 
@@ -31,6 +31,7 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const debounceRef = useRef<number | null>(null);
 
   useEffect(() => {
     loadFilterOptions();
@@ -74,6 +75,34 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
   const hasActiveFilters = Object.values(filters).some(value => 
     value !== undefined && value !== '' && value !== null
   );
+
+  // Auto-search as user types (debounced)
+  useEffect(() => {
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = window.setTimeout(() => {
+      const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+        if (value !== undefined && value !== '' && value !== null) {
+          acc[key as keyof SearchFilters] = value;
+        }
+        return acc;
+      }, {} as SearchFilters);
+
+      if (Object.keys(cleanFilters).length > 0) {
+        onSearch(cleanFilters);
+      } else {
+        onClear();
+      }
+    }, 100);
+
+    return () => {
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current);
+      }
+    };
+  }, [filters]);
 
   return (
     <div className="content-card">
@@ -202,41 +231,11 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
             onClick={handleClear}
             className="btn btn-secondary"
             style={{ fontSize: '0.875rem' }}
+            disabled={isLoadingOptions}
           >
             Clear Filters
           </button>
         )}
-        
-        <button
-          type="button"
-          onClick={handleSearch}
-          className="btn btn-primary"
-          disabled={isSearching || isLoadingOptions}
-          style={{ fontSize: '0.875rem' }}
-        >
-          {isSearching ? (
-            <>
-              <div style={{ 
-                width: '14px', 
-                height: '14px', 
-                border: '2px solid transparent',
-                borderTop: '2px solid currentColor',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginRight: '8px'
-              }}></div>
-              Searching...
-            </>
-          ) : (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-              </svg>
-              Search Products
-            </>
-          )}
-        </button>
       </div>
 
       {/* Active Filters Display */}
