@@ -69,7 +69,8 @@ public class ProductService {
 
     // Search products by name
     public List<ProductDto> searchProductsByName(String name) {
-        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        String pattern = name == null || name.isBlank() ? null : "%" + name + "%";
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -82,8 +83,14 @@ public class ProductService {
             String componentName,
             String ingredientName,
             ProductType productType) {
+        String namePattern = name == null || name.isBlank() ? null : "%" + name + "%";
+        String descriptionPattern = description == null || description.isBlank() ? null : "%" + description + "%";
+        String componentPattern = componentName == null || componentName.isBlank() ? null : "%" + componentName + "%";
+        String ingredientPattern = ingredientName == null || ingredientName.isBlank() ? null
+                : "%" + ingredientName + "%";
+
         List<Product> products = productRepository.findWithFilters(
-                name, description, componentName, ingredientName, productType);
+                namePattern, descriptionPattern, componentPattern, ingredientPattern, productType);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -91,7 +98,8 @@ public class ProductService {
 
     // Search by component name
     public List<ProductDto> searchProductsByComponent(String componentName) {
-        List<Product> products = productRepository.findByComponentName(componentName);
+        String pattern = componentName == null || componentName.isBlank() ? null : "%" + componentName + "%";
+        List<Product> products = productRepository.findByComponentName(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -99,7 +107,8 @@ public class ProductService {
 
     // Search by ingredient name
     public List<ProductDto> searchProductsByIngredient(String ingredientName) {
-        List<Product> products = productRepository.findByIngredientName(ingredientName);
+        String pattern = ingredientName == null || ingredientName.isBlank() ? null : "%" + ingredientName + "%";
+        List<Product> products = productRepository.findByIngredientName(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());

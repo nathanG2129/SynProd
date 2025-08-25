@@ -14,7 +14,9 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
        // Find products by name (case insensitive search)
-       @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+       // Expect the caller to provide wildcarded pattern (e.g., %term%) to avoid
+       // DB-side CONCAT
+       @Query("SELECT p FROM Product p WHERE p.name ILIKE :name")
        List<Product> findByNameContainingIgnoreCase(@Param("name") String name);
 
        // Find all products ordered by name
@@ -56,16 +58,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
        @Query("SELECT p FROM Product p WHERE p.createdBy.id = :userId ORDER BY p.createdAt DESC")
        List<Product> findByCreatedByIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 
-       // Advanced search with multiple criteria
+       // Advanced search with multiple criteria (PostgreSQL-specific ILIKE for
+       // case-insensitive matching)
+       // Caller must pass pre-wildcarded parameters (e.g., %term%)
        @Query("SELECT DISTINCT p FROM Product p " +
                      "LEFT JOIN p.compositions c " +
                      "LEFT JOIN p.additionalIngredients i " +
-                     "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
-                     "AND (:description IS NULL OR LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%'))) " +
-                     "AND (:componentName IS NULL OR LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))) "
-                     +
-                     "AND (:ingredientName IS NULL OR LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))) "
-                     +
+                     "WHERE (:name IS NULL OR p.name ILIKE :name) " +
+                     "AND (:description IS NULL OR p.description ILIKE :description) " +
+                     "AND (:componentName IS NULL OR c.componentName ILIKE :componentName) " +
+                     "AND (:ingredientName IS NULL OR i.ingredientName ILIKE :ingredientName) " +
                      "AND (:productType IS NULL OR p.productType = :productType) " +
                      "ORDER BY p.name ASC")
        List<Product> findWithFilters(
@@ -75,16 +77,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                      @Param("ingredientName") String ingredientName,
                      @Param("productType") ProductType productType);
 
-       // Find products with specific component
+       // Find products with specific component (use ILIKE with pre-wildcarded param)
        @Query("SELECT DISTINCT p FROM Product p " +
                      "JOIN p.compositions c " +
-                     "WHERE LOWER(c.componentName) LIKE LOWER(CONCAT('%', :componentName, '%'))")
+                     "WHERE c.componentName ILIKE :componentName")
        List<Product> findByComponentName(@Param("componentName") String componentName);
 
-       // Find products with specific ingredient
+       // Find products with specific ingredient (use ILIKE with pre-wildcarded param)
        @Query("SELECT DISTINCT p FROM Product p " +
                      "JOIN p.additionalIngredients i " +
-                     "WHERE LOWER(i.ingredientName) LIKE LOWER(CONCAT('%', :ingredientName, '%'))")
+                     "WHERE i.ingredientName ILIKE :ingredientName")
        List<Product> findByIngredientName(@Param("ingredientName") String ingredientName);
 
        // Find products by product type
