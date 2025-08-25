@@ -89,6 +89,7 @@ export const authAPI = {
 export const userAPI = {
   getProfile: () => api.get('/user/profile'),
   getUserById: (id: number) => api.get(`/user/${id}`),
+  getAllUsers: () => api.get('/user'),
 };
 
 // Product API
