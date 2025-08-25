@@ -87,7 +87,7 @@ export function UserList() {
 
   const headerCell = (label: string, key: SortKey) => (
     <th
-      style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+      style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap', textAlign: 'left' }}
       onClick={() => {
         if (sortBy === key) {
           setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -175,7 +175,7 @@ export function UserList() {
                 {headerCell('Last Name', 'lastName')}
                 {headerCell('Email', 'email')}
                 {headerCell('Role', 'role')}
-                {headerCell('Verified', 'emailVerified')}
+                {headerCell('Verified?', 'emailVerified')}
                 {headerCell('Created', 'createdAt')}
               </tr>
             </thead>
