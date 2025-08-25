@@ -87,6 +87,31 @@ export function RecipeDetail() {
     return quantity * ratio;
   };
 
+  const toTwoDecimals = (value: number) => Math.round(value * 100) / 100;
+
+  const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const parsed = parseFloat(raw);
+    if (isNaN(parsed)) {
+      setOrderQuantity(0);
+      return;
+    }
+    const clamped = Math.max(0, parsed);
+    setOrderQuantity(toTwoDecimals(clamped));
+  };
+
+  const handleTotalWeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!product || !selectedCapacityType) return;
+    const raw = e.target.value;
+    const parsed = parseFloat(raw);
+    if (isNaN(parsed)) return;
+    const total = Math.max(0, parsed);
+    const baseWeight = PRODUCT_TYPE_INFO[product.productType].baseWeight;
+    const capacityConfig = ORDER_CAPACITY_OPTIONS[product.productType][selectedCapacityType];
+    const newQuantity = total / (baseWeight * capacityConfig.multiplier);
+    setOrderQuantity(toTwoDecimals(newQuantity));
+  };
+
   if (isLoading) {
     return (
       <div className="dashboard-home">
@@ -192,10 +217,10 @@ export function RecipeDetail() {
             <input
               type="number"
               id="orderQuantity"
-              min="1"
-              step="1"
+              min="0"
+              step="0.01"
               value={orderQuantity}
-              onChange={(e) => setOrderQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={handleQuantityInputChange}
               style={{
                 padding: '12px 16px',
                 border: '2px solid #d1d5db',
@@ -231,17 +256,23 @@ export function RecipeDetail() {
 
           <div className="form-group">
             <label>Total Weight</label>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-              color: 'white',
-              padding: '12px 16px',
-              borderRadius: '6px',
-              textAlign: 'center',
-              fontWeight: '600',
-              fontSize: '1rem'
-            }}>
-              {totalWeight.toFixed(0)}g
-            </div>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={Number.isFinite(totalWeight) ? Number(totalWeight.toFixed(0)) : 0}
+              onChange={handleTotalWeightInputChange}
+              style={{ 
+                background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                color: 'white',
+                padding: '12px 16px',
+                borderRadius: '6px',
+                textAlign: 'center',
+                fontWeight: '600',
+                fontSize: '1rem',
+                border: 'none'
+              }}
+            />
           </div>
         </div>
       </div>
