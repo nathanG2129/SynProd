@@ -238,63 +238,7 @@ export function ProductFilters({ onSearch, onClear, isSearching }: ProductFilter
         )}
       </div>
 
-      {/* Active Filters Display */}
-      {hasActiveFilters && (
-        <div style={{ 
-          marginTop: '16px',
-          padding: '12px',
-          background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-          border: '1px solid rgba(145, 176, 41, 0.3)',
-          borderRadius: '6px'
-        }}>
-          <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#445c3c', marginBottom: '8px' }}>
-            Active Filters:
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {Object.entries(filters).map(([key, value]) => {
-              if (value === undefined || value === '' || value === null) return null;
-              
-              const displayKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-              return (
-                <span
-                  key={key}
-                  style={{
-                    background: 'white',
-                    border: '1px solid rgba(145, 176, 41, 0.3)',
-                    borderRadius: '4px',
-                    padding: '4px 8px',
-                    fontSize: '0.75rem',
-                    color: '#445c3c',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <strong>{displayKey}:</strong> {value}
-                  <button
-                    type="button"
-                    onClick={() => updateFilter(key as keyof SearchFilters, undefined)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#dc2626',
-                      cursor: 'pointer',
-                      padding: '0',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18"/>
-                      <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 }
