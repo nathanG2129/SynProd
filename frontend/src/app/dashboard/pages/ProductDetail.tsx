@@ -219,138 +219,141 @@ export function ProductDetail() {
         </div>
       </div>
 
-      {/* Composition */}
-      {product.compositions && product.compositions.length > 0 && (
-        <div className="content-card">
-          <h2>Recipe Composition</h2>
-          <div className="composition-list">
-            {product.compositions
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((composition, index) => (
-                <div 
-                  key={composition.id || index} 
-                  className="composition-item"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ 
-                      margin: '0 0 4px 0', 
-                      color: '#1e293b',
-                      fontSize: '1rem'
-                    }}>
-                      {composition.componentName}
-                    </h4>
-                    {composition.notes && (
-                      <p style={{ 
-                        margin: '0',
-                        fontSize: '0.875rem',
-                        color: '#64748b',
-                        fontStyle: 'italic'
+      {/* Recipe Composition & Additional Ingredients side-by-side */}
+      {(product.compositions && product.compositions.length > 0) || (product.additionalIngredients && product.additionalIngredients.length > 0) ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start' }}>
+          {product.compositions && product.compositions.length > 0 && (
+            <div className="content-card">
+              <h2>Recipe Composition</h2>
+              <div className="composition-list">
+                {product.compositions
+                  .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                  .map((composition, index) => (
+                    <div 
+                      key={composition.id || index} 
+                      className="composition-item"
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        marginBottom: '8px',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ 
+                          margin: '0 0 4px 0', 
+                          color: '#1e293b',
+                          fontSize: '1rem'
+                        }}>
+                          {composition.componentName}
+                        </h4>
+                        {composition.notes && (
+                          <p style={{ 
+                            margin: '0',
+                            fontSize: '0.875rem',
+                            color: '#64748b',
+                            fontStyle: 'italic'
+                          }}>
+                            {composition.notes}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontWeight: '600',
+                        fontSize: '1rem'
                       }}>
-                        {composition.notes}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{
-                    background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
-                    color: 'white',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    fontWeight: '600',
-                    fontSize: '1rem'
-                  }}>
-                    {composition.percentage.toFixed(2)}%
-                  </div>
+                        {composition.percentage.toFixed(2)}%
+                      </div>
+                    </div>
+                  ))}
+                
+                {/* Total Percentage Check */}
+                <div style={{
+                  padding: '12px 16px',
+                  background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                  border: '1px solid #91b029',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontWeight: '600',
+                  color: '#445c3c'
+                }}>
+                  <span>Total Composition:</span>
+                  <span>
+                    {product.compositions.reduce((sum, comp) => sum + comp.percentage, 0).toFixed(1)}%
+                  </span>
                 </div>
-              ))}
-            
-            {/* Total Percentage Check */}
-            <div style={{
-              padding: '12px 16px',
-              background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-              border: '1px solid #91b029',
-              borderRadius: '8px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              fontWeight: '600',
-              color: '#445c3c'
-            }}>
-              <span>Total Composition:</span>
-              <span>
-                {product.compositions.reduce((sum, comp) => sum + comp.percentage, 0).toFixed(1)}%
-              </span>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Additional Ingredients */}
-      {product.additionalIngredients && product.additionalIngredients.length > 0 && (
-        <div className="content-card">
-          <h2>Additional Ingredients</h2>
-          <div className="ingredients-list">
-            {product.additionalIngredients
-              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-              .map((ingredient, index) => (
-                <div 
-                  key={ingredient.id || index}
-                  className="ingredient-item"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ 
-                      margin: '0 0 4px 0', 
-                      color: '#1e293b',
-                      fontSize: '1rem'
-                    }}>
-                      {ingredient.ingredientName}
-                    </h4>
-                    {ingredient.notes && (
-                      <p style={{ 
-                        margin: '0',
-                        fontSize: '0.875rem',
-                        color: '#64748b',
-                        fontStyle: 'italic'
+          {product.additionalIngredients && product.additionalIngredients.length > 0 && (
+            <div className="content-card">
+              <h2>Additional Ingredients</h2>
+              <div className="ingredients-list">
+                {product.additionalIngredients
+                  .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                  .map((ingredient, index) => (
+                    <div 
+                      key={ingredient.id || index}
+                      className="ingredient-item"
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        marginBottom: '8px',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ 
+                          margin: '0 0 4px 0', 
+                          color: '#1e293b',
+                          fontSize: '1rem'
+                        }}>
+                          {ingredient.ingredientName}
+                        </h4>
+                        {ingredient.notes && (
+                          <p style={{ 
+                            margin: '0',
+                            fontSize: '0.875rem',
+                            color: '#64748b',
+                            fontStyle: 'italic'
+                          }}>
+                            {ingredient.notes}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
+                        color: '#445c3c',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontWeight: '600',
+                        fontSize: '1rem',
+                        border: '1px solid rgba(145, 176, 41, 0.2)'
                       }}>
-                        {ingredient.notes}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{
-                    background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-                    color: '#445c3c',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    border: '1px solid rgba(145, 176, 41, 0.2)'
-                  }}>
-                    {ingredient.quantity} {ingredient.unit}
-                  </div>
-                </div>
-              ))}
-          </div>
+                        {ingredient.quantity} {ingredient.unit}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
       {/* No Recipe Data */}
       {(!product.compositions || product.compositions.length === 0) && 
