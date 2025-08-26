@@ -5,3 +5,4 @@ export { ProductList } from './ProductList';
 export { ProductDetail } from './ProductDetail';
 export { ProductForm } from './ProductForm';
 export { UserList } from './UserList';
+export { UserForm } from './UserForm';

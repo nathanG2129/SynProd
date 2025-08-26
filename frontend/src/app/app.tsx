@@ -11,6 +11,7 @@ import { ProductDetail } from '../app/dashboard/pages/ProductDetail';
 import { ProductForm } from '../app/dashboard/pages/ProductForm';
 import { RecipeDetail } from '../app/dashboard/pages/RecipeDetail';
 import { UserList } from '../app/dashboard/pages/UserList';
+import { UserForm } from '../app/dashboard/pages/UserForm';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 import './auth/auth.css';
@@ -73,6 +74,7 @@ export function App() {
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="users" element={<UserList />} />
+          <Route path="users/:id/edit" element={<UserForm />} />
         </Route>
         
         {/* Home Route - Redirect based on auth status */}

@@ -90,6 +90,13 @@ export const userAPI = {
   getProfile: () => api.get('/user/profile'),
   getUserById: (id: number) => api.get(`/user/${id}`),
   getAllUsers: () => api.get('/user'),
+  updateUser: (id: number, data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'PRODUCTION' | 'MANAGER' | 'ADMIN';
+    enabled: boolean;
+  }) => api.put(`/user/${id}`, data),
 };
 
 // Product API
