@@ -4,11 +4,13 @@ import { FormValidator } from '../utils/validation';
 interface PasswordStrengthIndicatorProps {
   password: string;
   showText?: boolean;
+  showDetailedScore?: boolean;
 }
 
 export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps> = ({ 
   password, 
-  showText = true 
+  showText = true,
+  showDetailedScore = false
 }) => {
   const strength = FormValidator.getPasswordStrength(password);
 
@@ -17,11 +19,25 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
   }
 
   const getStrengthWidth = () => {
+    // Use the actual score percentage instead of fixed widths
+    return `${strength.score}%`;
+  };
+
+  const getStrengthColor = () => {
     switch (strength.strength) {
-      case 'weak': return '33.33%';
-      case 'medium': return '66.66%';
-      case 'strong': return '100%';
-      default: return '0%';
+      case 'weak': return '#f56565';
+      case 'medium': return '#ed8936';
+      case 'strong': return '#48bb78';
+      default: return '#e2e8f0';
+    }
+  };
+
+  const getStrengthDescription = () => {
+    switch (strength.strength) {
+      case 'weak': return 'Weak';
+      case 'medium': return 'Medium';
+      case 'strong': return 'Strong';
+      default: return 'Weak';
     }
   };
 
@@ -30,14 +46,18 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
       <div className="password-strength-bar">
         <div 
           className={`password-strength-fill ${strength.strength}`}
-          style={{ '--strength-width': getStrengthWidth() } as React.CSSProperties}
+          style={{ 
+            width: getStrengthWidth(),
+            background: getStrengthColor(),
+            transition: 'all 0.4s ease'
+          }}
         />
       </div>
       {showText && (
         <div className={`password-strength-text ${strength.strength}`}>
-          Password strength: {strength.strength.charAt(0).toUpperCase() + strength.strength.slice(1)}
-          {' '}
-          ({strength.passedRules}/{strength.totalRules} requirements met)
+          <span style={{ fontWeight: '600', color: getStrengthColor() }}>
+            Password Strength: {getStrengthDescription()}
+          </span>
         </div>
       )}
     </div>

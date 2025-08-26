@@ -155,7 +155,7 @@ export class FormValidator {
   }
 
   /**
-   * Gets password strength indicator
+   * Gets password strength indicator with enhanced scoring algorithm
    */
   static getPasswordStrength(password: string): {
     strength: 'weak' | 'medium' | 'strong';
@@ -172,14 +172,40 @@ export class FormValidator {
       };
     }
 
+    // Enhanced scoring algorithm adapted from the sample
+    let score = 0;
+    
+    // Length check (up to 25 points)
+    const lengthScore = Math.min(password.length * 3, 25);
+    score += lengthScore;
+    
+    // Character variety (up to 60 points)
+    if (/[A-Z]/.test(password)) score += 10; // Uppercase
+    if (/[a-z]/.test(password)) score += 10; // Lowercase
+    if (/[0-9]/.test(password)) score += 10; // Numbers
+    if (/[^A-Za-z0-9]/.test(password)) score += 15; // Symbols
+    
+    // Additional complexity checks
+    const variationCount = 
+      (/[A-Z]/.test(password) ? 1 : 0) +
+      (/[a-z]/.test(password) ? 1 : 0) +
+      (/[0-9]/.test(password) ? 1 : 0) +
+      (/[^A-Za-z0-9]/.test(password) ? 1 : 0);
+    
+    score += variationCount * 8;
+    
+    // Cap the score at 100
+    score = Math.min(score, 100);
+    
+    // Calculate passed rules for backward compatibility
     const passedRules = this.passwordRules.filter(rule => rule.test(password)).length;
     const totalRules = this.passwordRules.length;
-    const score = (passedRules / totalRules) * 100;
-
+    
+    // Enhanced strength thresholds based on the new scoring
     let strength: 'weak' | 'medium' | 'strong' = 'weak';
-    if (score >= 80) {
+    if (score >= 70) {
       strength = 'strong';
-    } else if (score >= 60) {
+    } else if (score >= 40) {
       strength = 'medium';
     }
 

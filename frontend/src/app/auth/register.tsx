@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import { PasswordStrengthIndicator } from '../../components/PasswordStrengthIndicator';
+import { PasswordRequirements } from '../../components/PasswordRequirements';
 import { useAuth } from '../../contexts/AuthContext';
 import './auth.css';
 
@@ -11,6 +12,7 @@ export function Register() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -170,7 +172,14 @@ export function Register() {
                 {getFieldError('password')}
               </div>
             )}
-            <PasswordStrengthIndicator password={formData.password} />
+            <PasswordStrengthIndicator 
+              password={formData.password} 
+            />
+            <PasswordRequirements 
+              password={formData.password}
+              showRequirements={showPasswordRequirements}
+              onToggleRequirements={setShowPasswordRequirements}
+            />
           </div>
 
           <div className="form-group">
