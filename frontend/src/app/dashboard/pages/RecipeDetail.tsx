@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
 import { Product, ProductType, getProductTypeDisplayName, getProductBaseWeightDisplay, PRODUCT_TYPE_INFO } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import RecipePdf from '../../../components/pdf/RecipePdf';
 
 interface OrderCapacityConfig {
   unit: string;
@@ -274,6 +276,26 @@ export function RecipeDetail() {
               }}
             />
           </div>
+        </div>
+
+        {/* Export PDF */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <PDFDownloadLink
+            document={
+              <RecipePdf
+                product={product}
+                orderQuantity={orderQuantity}
+                capacityTypeKey={selectedCapacityType}
+              />
+            }
+            fileName={`${product.name.replace(/\s+/g, '_')}-recipe.pdf`}
+          >
+            {({ loading }: { loading: boolean }) => (
+              <button className="btn btn-secondary" style={{ fontSize: '0.875rem' }}>
+                {loading ? 'Preparing PDF...' : 'Export PDF'}
+              </button>
+            )}
+          </PDFDownloadLink>
         </div>
       </div>
 
