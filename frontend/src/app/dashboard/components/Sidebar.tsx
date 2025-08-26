@@ -69,17 +69,6 @@ export function Sidebar({ user, collapsed, onCollapse, onLogout }: SidebarProps)
         </svg>
       ),
       roles: ['ADMIN']
-    },
-    {
-      path: '/dashboard/reports',
-      label: 'Reports',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 3v18h18"/>
-          <path d="M7 12l4-4 4 4 4-4"/>
-        </svg>
-      ),
-      roles: ['MANAGER', 'ADMIN']
     }
   ];
 

@@ -73,7 +73,6 @@ export function App() {
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="users" element={<UserList />} />
-          <Route path="reports" element={<div>Reports - Coming Soon</div>} />
         </Route>
         
         {/* Home Route - Redirect based on auth status */}
