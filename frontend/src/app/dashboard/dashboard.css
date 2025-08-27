@@ -670,9 +670,18 @@
   gap: 24px;
 }
 
+/* User Form Styles */
+.user-form {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .composition-form-item,
 .ingredient-form-item {
-  background: #ffffff;
+  background: #000000;
   border: 2px solid rgba(68, 92, 60, 0.2);
   border-radius: 8px;
   transition: all 0.2s ease;
