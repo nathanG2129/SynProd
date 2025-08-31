@@ -10,8 +10,8 @@ export function ProductForm() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   
   // Form data
   const [compositions, setCompositions] = useState<ProductComposition[]>([]);
@@ -168,7 +168,7 @@ export function ProductForm() {
 
   const onSubmit = async (data: Record<string, string>) => {
     setError('');
-    setSuccess('');
+    setIsSuccess(false);
 
     // Validate compositions and ingredients
     if (!validateCompositions() || !validateIngredients()) {
@@ -188,13 +188,13 @@ export function ProductForm() {
       
       if (isEditing && product) {
         await productAPI.updateProduct(product.id, requestData);
-        setSuccess('Product updated successfully!');
+        setIsSuccess(true);
         setTimeout(() => {
           navigate(`/dashboard/products/${product.id}`);
         }, 1500);
       } else {
         const response = await productAPI.createProduct(requestData);
-        setSuccess('Product created successfully!');
+        setIsSuccess(true);
         setTimeout(() => {
           navigate(`/dashboard/products/${response.data.id}`);
         }, 1500);
@@ -269,12 +269,6 @@ export function ProductForm() {
         {error && (
           <div className="error-message" style={{ marginBottom: '24px' }}>
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="success-message" style={{ marginBottom: '24px' }}>
-            {success}
           </div>
         )}
 
@@ -731,7 +725,9 @@ export function ProductForm() {
             >
               {isSubmitting ? 
                 (isEditing ? 'Updating...' : 'Creating...') : 
-                (isEditing ? 'Update Product' : 'Create Product')
+                isSuccess ? 
+                  (isEditing ? 'Updated!' : 'Created!') :
+                  (isEditing ? 'Update Product' : 'Create Product')
               }
             </button>
           </div>

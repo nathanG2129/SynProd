@@ -9,8 +9,8 @@ export function UserForm() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ export function UserForm() {
 
   const onSubmit = async (data: Record<string, string>) => {
     setError('');
-    setSuccess('');
+    setIsSuccess(false);
 
     const requestData = {
       firstName: data.firstName,
@@ -99,7 +99,7 @@ export function UserForm() {
       
       if (isEditing && user) {
         await userAPI.updateUser(user.id, requestData);
-        setSuccess('User updated successfully!');
+        setIsSuccess(true);
         setTimeout(() => {
           navigate('/dashboard/users');
         }, 1500);
@@ -174,12 +174,6 @@ export function UserForm() {
         {error && (
           <div className="error-message" style={{ marginBottom: '24px' }}>
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="success-message" style={{ marginBottom: '24px' }}>
-            {success}
           </div>
         )}
 
@@ -332,7 +326,7 @@ export function UserForm() {
               className="btn btn-primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Updating...' : 'Update User'}
+              {isSubmitting ? 'Updating...' : isSuccess ? 'Updated!' : 'Update User'}
             </button>
           </div>
         </div>
