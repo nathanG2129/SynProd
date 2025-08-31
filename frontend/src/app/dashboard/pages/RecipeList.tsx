@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { productAPI } from '../../../services/api';
 import { Product, getProductTypeDisplayName } from '../../../types/product';
 import { useAuth } from '../../../contexts/AuthContext';
+import { RecipeFilters, SearchFilters } from '../components/RecipeFilters';
 
 export function RecipeList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>({});
   const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'productType'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const { user } = useAuth();
@@ -31,10 +34,28 @@ export function RecipeList() {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const handleAdvancedSearch = async (filters: SearchFilters) => {
+    try {
+      setIsSearching(true);
+      setError('');
+      setActiveFilters(filters);
+      
+      const response = await productAPI.searchProductsAdvanced(filters);
+      setSearchResults(response.data);
+    } catch (err: any) {
+      setError('Search failed');
+      console.error('Search error:', err);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults([]);
+    setActiveFilters({});
+    setIsSearching(false);
+  };
 
   const sortProducts = (productsToSort: Product[]) => {
     return [...productsToSort].sort((a, b) => {
@@ -63,7 +84,8 @@ export function RecipeList() {
     });
   };
 
-  const displayProducts = sortProducts(filteredProducts);
+  const hasActiveSearch = Object.keys(activeFilters).length > 0;
+  const displayProducts = sortProducts(hasActiveSearch ? searchResults : products);
 
   if (isLoading) {
     return (
@@ -104,78 +126,17 @@ export function RecipeList() {
         </div>
       )}
 
-      {/* Unified Search and Count Header */}
-      <div className="content-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, color: '#445c3c' }}>
-            {searchTerm ? `Search Results (${displayProducts.length})` : `All Recipes (${displayProducts.length})`}
-          </h3>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="recipeSearch">Search by name or description</label>
-          <input
-            type="text"
-            id="recipeSearch"
-            placeholder="Search recipes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '2px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '16px' }}>
-          <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'productType')}
-            style={{
-              padding: '6px 8px',
-              border: '2px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
-          >
-            <option value="name">Recipe Name</option>
-            <option value="createdAt">Date Created</option>
-            <option value="productType">Product Type</option>
-          </select>
-          
-          <button
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#91b029',
-              cursor: 'pointer',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-            title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-          >
-            {sortOrder === 'asc' ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18"/>
-                <path d="M6 12h12"/>
-                <path d="M9 18h6"/>
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 6h6"/>
-                <path d="M6 12h12"/>
-                <path d="M3 18h18"/>
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
+      {/* Unified Search, Filters, and Count Header */}
+      <RecipeFilters
+        onSearch={handleAdvancedSearch}
+        onClear={handleClearSearch}
+        isSearching={isSearching}
+        count={displayProducts.length}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortByChange={setSortBy}
+        onSortOrderChange={setSortOrder}
+      />
 
       {/* Recipes Grid */}
       {displayProducts.length === 0 ? (
@@ -186,14 +147,14 @@ export function RecipeList() {
           </svg>
           <h3>No Recipes Found</h3>
           <p style={{ color: '#64748b', marginBottom: '24px' }}>
-            {searchTerm 
-              ? 'No recipes found matching your search.'
+            {hasActiveSearch 
+              ? 'No recipes found matching your search criteria.'
               : 'No recipes are available yet.'
             }
           </p>
-          {searchTerm && (
+          {hasActiveSearch && (
             <button 
-              onClick={() => setSearchTerm('')}
+              onClick={handleClearSearch}
               className="btn btn-secondary"
             >
               Clear Search
