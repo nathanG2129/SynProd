@@ -198,67 +198,17 @@ export function ProductList() {
         </div>
       )}
 
-      {/* Search and Filters */}
+      {/* Unified Search, Filters, and Count Header */}
       <ProductFilters
         onSearch={handleAdvancedSearch}
         onClear={handleClearSearch}
         isSearching={isSearching}
+        count={displayProducts.length}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortByChange={setSortBy}
+        onSortOrderChange={setSortOrder}
       />
-
-      {/* Sorting Options */}
-      <div className="content-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, color: '#445c3c' }}>
-            {hasActiveSearch ? `Search Results (${displayProducts.length})` : `All Products (${displayProducts.length})`}
-          </h3>
-          
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'productType')}
-              style={{
-                padding: '6px 8px',
-                border: '1px solid #e2e8f0',
-                borderRadius: '4px',
-                fontSize: '0.875rem'
-              }}
-            >
-              <option value="name">Name</option>
-              <option value="createdAt">Date Created</option>
-              <option value="productType">Product Type</option>
-            </select>
-            
-            <button
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#91b029',
-                cursor: 'pointer',
-                padding: '4px',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-              title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-            >
-              {sortOrder === 'asc' ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6h18"/>
-                  <path d="M6 12h12"/>
-                  <path d="M9 18h6"/>
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 6h6"/>
-                  <path d="M6 12h12"/>
-                  <path d="M3 18h18"/>
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Products Grid */}
       {displayProducts.length === 0 ? (

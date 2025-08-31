@@ -104,9 +104,13 @@ export function RecipeList() {
         </div>
       )}
 
-      {/* Search and Filters */}
+      {/* Unified Search and Count Header */}
       <div className="content-card">
-        <h3 style={{ margin: '0 0 16px 0', color: '#445c3c' }}>Search Recipes</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+          <h3 style={{ margin: 0, color: '#445c3c' }}>
+            {searchTerm ? `Search Results (${displayProducts.length})` : `All Recipes (${displayProducts.length})`}
+          </h3>
+        </div>
         
         <div className="form-group">
           <label htmlFor="recipeSearch">Search by name or description</label>
@@ -171,13 +175,6 @@ export function RecipeList() {
             )}
           </button>
         </div>
-      </div>
-
-      {/* Recipe Count */}
-      <div className="content-card">
-        <h3 style={{ margin: 0, color: '#445c3c' }}>
-          {searchTerm ? `Search Results (${displayProducts.length})` : `All Recipes (${displayProducts.length})`}
-        </h3>
       </div>
 
       {/* Recipes Grid */}
