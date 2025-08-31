@@ -311,7 +311,7 @@ export function UserForm() {
                 color: '#6c757d'
               }}>
                 <span className={`verification-badge ${user.emailVerified ? 'verified' : 'unverified'}`}>
-                  {user.emailVerified ? 'Verified' : 'Not Verified'}
+                  {user.emailVerified ? 'Verified' : 'Unverified'}
                 </span>
                 <span style={{ marginLeft: '8px', fontSize: '0.875rem' }}>
                   (This status cannot be modified)

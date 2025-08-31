@@ -192,7 +192,7 @@ export function UserList() {
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
                     <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
-                      {u.emailVerified ? 'Verified' : 'Not Verified'}
+                      {u.emailVerified ? 'Verified' : 'Unverified'}
                     </span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>

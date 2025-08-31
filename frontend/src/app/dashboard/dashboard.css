@@ -180,7 +180,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  margin: 2px 0;
+  margin: 8px 0;
   border-radius: 8px;
   text-decoration: none;
   color: #64748b;
@@ -695,7 +695,6 @@
 }
 
 .success-message {
-  background: linear-gradient(135deg, #d4f1a8, #91b029);
   border: 1px solid #91b029;
   border-radius: 6px;
   color: white;
