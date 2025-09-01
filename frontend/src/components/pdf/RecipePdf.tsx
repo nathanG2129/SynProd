@@ -151,12 +151,6 @@ export const RecipePdf: React.FC<RecipePdfProps> = ({ product, orderQuantity, ca
             <Text>Total Weight</Text>
             <Text style={styles.chip}>{Number.isFinite(totalWeight) ? totalWeight.toFixed(1) : '0.0'}g</Text>
           </View>
-          {product.createdByName ? (
-            <View style={styles.row}>
-              <Text>Created By</Text>
-              <Text>{product.createdByName}</Text>
-            </View>
-          ) : null}
         </View>
 
         {product.compositions && product.compositions.length > 0 ? (
