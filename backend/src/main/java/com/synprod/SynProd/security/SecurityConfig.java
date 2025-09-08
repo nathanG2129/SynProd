@@ -128,7 +128,7 @@ public class SecurityConfig {
 
         // Security enhancements for production
         authProvider.setHideUserNotFoundExceptions(false); // Don't hide user not found exceptions
-        authProvider.setUserCache(null); // Disable user caching for security
+        // Use default user cache for production
 
         return authProvider;
     }

@@ -11,11 +11,7 @@ RUN mkdir -p /var/log/nginx && \
 # Copy frontend build files (will be mounted in docker-compose)
 # The frontend files will be copied from the build process
 
-# Create nginx user and set permissions
-RUN addgroup -g 101 -S nginx && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
-
-# Set proper permissions
+# Set proper permissions (nginx user already exists in base image)
 RUN chown -R nginx:nginx /var/log/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx

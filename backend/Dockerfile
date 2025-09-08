@@ -11,16 +11,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Gradle wrapper and build files
-COPY backend/gradlew .
-COPY backend/gradle/ gradle/
-COPY backend/build.gradle .
-COPY backend/settings.gradle .
+COPY gradlew .
+COPY gradle/ gradle/
+COPY build.gradle .
+COPY settings.gradle .
 
 # Make gradlew executable
 RUN chmod +x ./gradlew
 
 # Copy source code
-COPY backend/src/ src/
+COPY src/ src/
 
 # Build the application (skip tests for faster build)
 RUN ./gradlew build -x test --no-daemon
