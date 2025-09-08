@@ -14,6 +14,7 @@ export function UserList() {
   const [sortBy, setSortBy] = useState<SortKey>('firstName');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [search, setSearch] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
 
   const canView = user?.role === 'ADMIN';
 
@@ -22,6 +23,14 @@ export function UserList() {
       setIsLoading(false);
       return;
     }
+    const mq = window.matchMedia('(max-width: 768px)');
+    const updateIsMobile = () => setIsMobile(mq.matches);
+    updateIsMobile();
+    mq.addEventListener?.('change', updateIsMobile);
+    // Safari/old browsers fallback
+    // @ts-ignore
+    mq.addListener && mq.addListener(updateIsMobile);
+
     const load = async () => {
       try {
         setIsLoading(true);
@@ -35,6 +44,12 @@ export function UserList() {
       }
     };
     load();
+
+    return () => {
+      mq.removeEventListener?.('change', updateIsMobile);
+      // @ts-ignore
+      mq.removeListener && mq.removeListener(updateIsMobile);
+    };
   }, [canView]);
 
   const filtered = useMemo(() => {
@@ -155,7 +170,7 @@ export function UserList() {
       )}
 
       <div className="content-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 }}>
           <h3 style={{ margin: 0, color: '#445c3c' }}>Users ({filtered.length})</h3>
           <input
             type="text"
@@ -167,63 +182,105 @@ export function UserList() {
             }}
           />
         </div>
-
-        <div style={{ width: '100%', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
-            <thead>
-              <tr style={{ background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)' }}>
-                {headerCell('First Name', 'firstName')}
-                {headerCell('Last Name', 'lastName')}
-                {headerCell('Email', 'email')}
-                {headerCell('Role', 'role')}
-                {headerCell('Verified?', 'emailVerified')}
-                {headerCell('Created', 'createdAt')}
-                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((u, idx) => (
-                <tr key={u.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.firstName}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.lastName}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{u.email}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
-                    <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
-                    <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
-                      {u.emailVerified ? 'Verified' : 'Unverified'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
-                    {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', textAlign: 'center' }}>
-                    <Link 
-                      to={`/dashboard/users/${u.id}/edit`}
-                      className="btn btn-primary"
-                      style={{ fontSize: '0.75rem', padding: '6px 10px' }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-                      </svg>
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
-                    No users found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
+
+      {isMobile ? (
+        <div className="grid-list compact">
+          {filtered.map((u) => (
+            <div key={u.id} className="content-card user-card" style={{ height: 'fit-content' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <h3 style={{ margin: 0 }}>{u.firstName} {u.lastName}</h3>
+                <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>{u.email}</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
+                <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
+                  {u.emailVerified ? 'Verified' : 'Unverified'}
+                </span>
+              </div>
+              <div style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '16px' }}>
+                Joined {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Link
+                  to={`/dashboard/users/${u.id}/edit`}
+                  className="btn btn-primary"
+                  style={{ fontSize: '0.8rem', padding: '8px 12px' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+                  </svg>
+                  Edit
+                </Link>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <div className="content-card" style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+              No users found.
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="content-card">
+          <div style={{ width: '100%', overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead>
+                <tr style={{ background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)' }}>
+                  {headerCell('First Name', 'firstName')}
+                  {headerCell('Last Name', 'lastName')}
+                  {headerCell('Email', 'email')}
+                  {headerCell('Role', 'role')}
+                  {headerCell('Verified?', 'emailVerified')}
+                  {headerCell('Created', 'createdAt')}
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((u, idx) => (
+                  <tr key={u.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.firstName}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.lastName}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{u.email}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
+                      <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
+                    </td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
+                      <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
+                        {u.emailVerified ? 'Verified' : 'Unverified'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+                      {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', textAlign: 'center' }}>
+                      <Link 
+                        to={`/dashboard/users/${u.id}/edit`}
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.75rem', padding: '6px 10px' }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+                        </svg>
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                      No users found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
