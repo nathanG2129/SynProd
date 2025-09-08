@@ -170,18 +170,33 @@ export function UserList() {
       )}
 
       <div className="content-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 }}>
-          <h3 style={{ margin: 0, color: '#445c3c' }}>Users ({filtered.length})</h3>
-          <input
-            type="text"
-            placeholder="Search name, email, role..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              padding: '10px 12px', border: '2px solid #d1d5db', borderRadius: '6px', fontSize: '0.95rem', minWidth: '260px'
-            }}
-          />
-        </div>
+        {isMobile ? (
+          <div>
+            <h3 style={{ margin: 0, color: '#445c3c' }}>Users ({filtered.length})</h3>
+            <input
+              type="text"
+              placeholder="Search name, email, role..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                padding: '10px 12px', border: '2px solid #d1d5db', borderRadius: '6px', fontSize: '0.95rem', width: '100%', minWidth: 0, marginTop: '12px'
+              }}
+            />
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 }}>
+            <h3 style={{ margin: 0, color: '#445c3c' }}>Users ({filtered.length})</h3>
+            <input
+              type="text"
+              placeholder="Search name, email, role..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                padding: '10px 12px', border: '2px solid #d1d5db', borderRadius: '6px', fontSize: '0.95rem', minWidth: '260px'
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {isMobile ? (
