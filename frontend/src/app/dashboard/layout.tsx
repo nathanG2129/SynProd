@@ -6,7 +6,7 @@ import { SessionWarning } from '../../components/SessionWarning';
 import './dashboard.css';
 
 export function DashboardLayout() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-open'}`}>
       <Header 
         user={user}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -36,6 +36,14 @@ export function DashboardLayout() {
           onCollapse={setSidebarCollapsed}
           onLogout={handleLogout}
         />
+        {/* Mobile backdrop to close sidebar */}
+        {!sidebarCollapsed && (
+          <div
+            className="sidebar-backdrop"
+            onClick={() => setSidebarCollapsed(true)}
+            aria-hidden="true"
+          />
+        )}
         
         <main className={`dashboard-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <div className="content-wrapper">
