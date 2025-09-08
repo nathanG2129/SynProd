@@ -89,7 +89,7 @@ export function RecipeDetail() {
     return quantity * ratio;
   };
 
-  const toTwoDecimals = (value: number) => Math.round(value * 100) / 100;
+  const toSixDecimals = (value: number) => Math.round(value * 1_000_000) / 1_000_000;
 
   const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -99,7 +99,7 @@ export function RecipeDetail() {
       return;
     }
     const clamped = Math.max(0, parsed);
-    setOrderQuantity(toTwoDecimals(clamped));
+    setOrderQuantity(toSixDecimals(clamped));
   };
 
   const handleTotalWeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +111,7 @@ export function RecipeDetail() {
     const baseWeight = PRODUCT_TYPE_INFO[product.productType].baseWeight;
     const capacityConfig = ORDER_CAPACITY_OPTIONS[product.productType][selectedCapacityType];
     const newQuantity = total / (baseWeight * capacityConfig.multiplier);
-    setOrderQuantity(toTwoDecimals(newQuantity));
+    setOrderQuantity(toSixDecimals(newQuantity));
   };
 
   if (isLoading) {
