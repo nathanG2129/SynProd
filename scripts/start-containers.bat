@@ -1,6 +1,6 @@
 @echo off
-REM Quick deployment script for SynProd (Windows)
-REM This script provides a fast deployment option for development and testing
+REM Container startup script for SynProd (Windows)
+REM This script starts the Docker containers for backend and nginx
 
 setlocal enabledelayedexpansion
 
@@ -8,60 +8,59 @@ REM Configuration
 set COMPOSE_FILE=docker-compose.prod.yml
 set ENV_FILE=.env.production
 
-echo ⚡ SynProd Quick Deployment
+echo 🚀 SynProd Container Startup
 echo ===========================
 
-REM Function to check if environment file exists
-:check_environment
+REM Check if Docker is running
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo ❌ Docker is not running. Please start Docker and try again.
+    exit /b 1
+)
+
+REM Check if environment file exists
 if not exist "%ENV_FILE%" (
     echo ❌ Environment file %ENV_FILE% not found
     echo 💡 Please copy deployment/env.production.template to %ENV_FILE% and configure it
     exit /b 1
 )
-echo ✅ Environment file found
-goto :check_builds
-
-REM Function to check if builds exist
-:check_builds
-echo 🔍 Checking if builds exist...
-
-REM Check frontend build
-if not exist "nginx\html" (
-    echo ⚠️  Frontend build not found. Building frontend...
-    call scripts\build-frontend.bat
-) else (
-    dir "nginx\html" /B | findstr . >nul
-    if errorlevel 1 (
-        echo ⚠️  Frontend build not found. Building frontend...
-        call scripts\build-frontend.bat
-    ) else (
-        echo ✅ Frontend build found
-    )
-)
 
 REM Check if Docker images exist
 docker images | findstr "synprod-backend" >nul
 if errorlevel 1 (
-    echo ⚠️  Backend Docker image not found. Building backend...
-    call scripts\build-backend.bat
-) else (
-    echo ✅ Backend Docker image found
+    echo ❌ Backend Docker image not found
+    echo 💡 Please run deploy-backend.bat first
+    exit /b 1
 )
 
+REM Check if nginx html directory exists and has content
+if not exist "nginx\html" (
+    echo ❌ Nginx html directory not found
+    echo 💡 Please run deploy-frontend.bat first
+    exit /b 1
+) else (
+    dir "nginx\html" /B | findstr . >nul
+    if errorlevel 1 (
+        echo ❌ Nginx html directory is empty
+        echo 💡 Please run deploy-frontend.bat first
+        exit /b 1
+    )
+)
+
+echo ✅ Prerequisites check passed
+
+REM Build nginx image if it doesn't exist
 docker images | findstr "synprod-nginx" >nul
 if errorlevel 1 (
-    echo ⚠️  Nginx Docker image not found. Building nginx...
+    echo 🔨 Building nginx Docker image...
     docker build -t synprod-nginx:latest ./nginx
+    echo ✅ Nginx Docker image built
 ) else (
     echo ✅ Nginx Docker image found
 )
 
-goto :stop_services
-
-REM Function to stop existing services
-:stop_services
+REM Stop existing services if running
 echo 🛑 Stopping existing services...
-
 docker-compose -f "%COMPOSE_FILE%" ps -q | findstr . >nul
 if not errorlevel 1 (
     docker-compose -f "%COMPOSE_FILE%" down
@@ -70,20 +69,17 @@ if not errorlevel 1 (
     echo ℹ️  No running services found
 )
 
-goto :start_services
-
-REM Function to start services
-:start_services
-echo 🚀 Starting services...
-
 REM Start services
+echo 🚀 Starting services...
 docker-compose -f "%COMPOSE_FILE%" up -d
 
 echo ✅ Services started
-goto :wait_for_services
 
-REM Function to wait for services
-:wait_for_services
+REM Wait a moment for initial startup
+echo ⏳ Waiting for initial startup...
+timeout /t 10 /nobreak >nul
+
+REM Wait for services to be ready
 echo ⏳ Waiting for services to be ready...
 
 REM Wait for postgres
@@ -116,13 +112,11 @@ if errorlevel 1 (
     goto :wait_nginx
 )
 
-echo ✅ Services are ready
-goto :show_status
+echo ✅ All services are ready
 
-REM Function to show status
-:show_status
-echo 🎉 Quick deployment completed!
-echo ===========================
+REM Show status
+echo 🎉 SynProd is now running!
+echo =========================
 
 echo 📊 Service Status:
 docker-compose -f "%COMPOSE_FILE%" ps
@@ -132,12 +126,7 @@ echo   Frontend: http://localhost
 echo   Backend API: http://localhost:8080/api
 echo   Health Check: http://localhost/health
 
-echo 📋 Quick Commands:
+echo 📋 Useful Commands:
 echo   View logs: docker-compose -f %COMPOSE_FILE% logs -f
-echo   Stop: docker-compose -f %COMPOSE_FILE% down
-echo   Restart: docker-compose -f %COMPOSE_FILE% restart
-
-goto :end
-
-:end
-echo Quick deployment completed.
+echo   Stop services: docker-compose -f %COMPOSE_FILE% down
+echo   Restart services: docker-compose -f %COMPOSE_FILE% restart
