@@ -107,7 +107,7 @@ export function ProductDetail() {
   return (
     <div className="dashboard-home">
       <div className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="list-controls">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <Link 
@@ -133,7 +133,7 @@ export function ProductDetail() {
           </div>
           
           {canManageProducts && (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="product-actions" style={{ display: 'flex', gap: '8px' }}>
               <Link 
                 to={`/dashboard/products/${product.id}/edit`} 
                 className="btn btn-secondary"
@@ -166,7 +166,7 @@ export function ProductDetail() {
       {/* Product Info */}
       <div className="content-card">
         <h2>Product Information</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="product-info-grid">
           <div>
             <div style={{ marginBottom: '12px' }}>
               <strong style={{ color: '#445c3c' }}>Product Type:</strong>
@@ -221,7 +221,7 @@ export function ProductDetail() {
 
       {/* Recipe Composition & Additional Ingredients side-by-side */}
       {(product.compositions && product.compositions.length > 0) || (product.additionalIngredients && product.additionalIngredients.length > 0) ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start' }}>
+        <div className="recipe-sections-grid">
           {product.compositions && product.compositions.length > 0 && (
             <div className="content-card">
               <h2>Recipe Composition</h2>
@@ -232,18 +232,8 @@ export function ProductDetail() {
                     <div 
                       key={composition.id || index} 
                       className="composition-item"
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        marginBottom: '8px',
-                        background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                      }}
                     >
-                      <div style={{ flex: 1 }}>
+                      <div>
                         <h4 style={{ 
                           margin: '0 0 4px 0', 
                           color: '#1e293b',
@@ -268,7 +258,8 @@ export function ProductDetail() {
                         padding: '8px 16px',
                         borderRadius: '20px',
                         fontWeight: '600',
-                        fontSize: '1rem'
+                        fontSize: '1rem',
+                        textAlign: 'center'
                       }}>
                         {composition.percentage.toFixed(2)}%
                       </div>
@@ -306,18 +297,8 @@ export function ProductDetail() {
                     <div 
                       key={ingredient.id || index}
                       className="ingredient-item"
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        marginBottom: '8px',
-                        background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                      }}
                     >
-                      <div style={{ flex: 1 }}>
+                      <div>
                         <h4 style={{ 
                           margin: '0 0 4px 0', 
                           color: '#1e293b',
@@ -343,7 +324,8 @@ export function ProductDetail() {
                         borderRadius: '20px',
                         fontWeight: '600',
                         fontSize: '1rem',
-                        border: '1px solid rgba(145, 176, 41, 0.2)'
+                        border: '1px solid rgba(145, 176, 41, 0.2)',
+                        textAlign: 'center'
                       }}>
                         {ingredient.quantity} {ingredient.unit}
                       </div>

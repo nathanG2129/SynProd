@@ -771,6 +771,10 @@
   .composition-summary {
     grid-template-columns: 1fr;
   }
+
+  /* Product detail responsiveness */
+  .product-info-grid { grid-template-columns: 1fr; }
+  .product-actions { width: 100%; display: flex; gap: 8px; }
 }
 
 /* Product Form Styles */
