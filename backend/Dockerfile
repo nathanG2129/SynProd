@@ -26,7 +26,7 @@ COPY backend/src/ src/
 RUN ./gradlew build -x test --no-daemon
 
 # Stage 2: Create production image
-FROM openjdk:21-jre-slim AS production
+FROM openjdk:21-jdk-slim AS production
 
 # Set working directory
 WORKDIR /app
