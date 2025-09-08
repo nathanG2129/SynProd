@@ -174,7 +174,7 @@ export function ProductList() {
   return (
     <div className="dashboard-home">
       <div className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="list-controls">
           <div>
             <h1 className="page-title">Product Management</h1>
             <p className="page-subtitle">Create, edit, and manage product recipes</p>
@@ -231,17 +231,9 @@ export function ProductList() {
           )}
         </div>
       ) : (
-        <div className="products-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-          gap: '24px'
-        }}>
+        <div className="products-grid grid-list compact">
           {displayProducts.map((product) => (
-            <div key={product.id} className="content-card product-card" style={{
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              height: 'fit-content'
-            }}>
+            <div key={product.id} className="content-card product-card" style={{ cursor: 'pointer', height: 'fit-content' }}>
               <Link 
                 to={`/dashboard/products/${product.id}`} 
                 style={{ textDecoration: 'none', color: 'inherit' }}

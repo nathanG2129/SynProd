@@ -162,17 +162,9 @@ export function RecipeList() {
           )}
         </div>
       ) : (
-        <div className="recipes-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-          gap: '24px'
-        }}>
+        <div className="recipes-grid grid-list compact">
           {displayProducts.map((product) => (
-            <div key={product.id} className="content-card recipe-card" style={{
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              height: 'fit-content'
-            }}>
+            <div key={product.id} className="content-card recipe-card" style={{ cursor: 'pointer', height: 'fit-content' }}>
               <Link 
                 to={`/dashboard/recipes/${product.id}`} 
                 style={{ textDecoration: 'none', color: 'inherit' }}

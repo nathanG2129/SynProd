@@ -120,12 +120,12 @@ export function RecipeFilters({
 
   return (
     <div className="content-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+      <div className="filters-header" style={{ marginBottom: '16px' }}>
         <h3 style={{ margin: 0, color: '#445c3c' }}>
           {count !== undefined ? `All Recipes (${count})` : 'Search & Filter Recipes'}
         </h3>
         
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="filters-actions">
           {sortBy && sortOrder && onSortByChange && onSortOrderChange && (
             <>
               <label style={{ fontSize: '0.875rem', color: '#64748b' }}>Sort by:</label>
