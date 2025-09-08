@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
-      - "5432:5432"
+      - "0.0.0.0:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
@@ -71,7 +71,7 @@ services:
       # JVM Configuration
       JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
     ports:
-      - "8080:8080"
+      - "0.0.0.0:8080:8080"
     volumes:
       - backend_logs:/var/log/synprod
     networks:
@@ -107,8 +107,8 @@ services:
       dockerfile: Dockerfile
     container_name: synprod_nginx_prod
     ports:
-      - "80:80"
-      - "443:443"  # For future SSL support
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"  # For future SSL support
     volumes:
       - ./nginx/html:/usr/share/nginx/html:ro
       - nginx_logs:/var/log/nginx
