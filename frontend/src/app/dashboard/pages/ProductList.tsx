@@ -264,7 +264,8 @@ export function ProductList() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    marginBottom: '12px'
+                    marginBottom: '12px',
+                    flexWrap: 'wrap'
                   }}>
                     <span style={{
                       background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
@@ -272,7 +273,7 @@ export function ProductList() {
                       padding: '4px 8px',
                       borderRadius: '4px',
                       fontSize: '0.75rem',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       border: '1px solid rgba(145, 176, 41, 0.2)'
                     }}>
                       {getProductTypeDisplayName(product.productType)}
@@ -280,19 +281,27 @@ export function ProductList() {
                     
                     {product.compositions && product.compositions.length > 0 && (
                       <span style={{
-                        color: '#718096',
-                        fontSize: '0.75rem'
+                        background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
                       }}>
-                        {product.compositions.length} component{product.compositions.length !== 1 ? 's' : ''}
+                        {product.compositions.length} Component{product.compositions.length !== 1 ? 's' : ''}
                       </span>
                     )}
                     
                     {product.additionalIngredients && product.additionalIngredients.length > 0 && (
                       <span style={{
-                        color: '#718096',
-                        fontSize: '0.75rem'
+                        background: 'linear-gradient(135deg, #445c3c, #5a6e42)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
                       }}>
-                        {product.additionalIngredients.length} ingredient{product.additionalIngredients.length !== 1 ? 's' : ''}
+                        +{product.additionalIngredients.length} Ingredient{product.additionalIngredients.length !== 1 ? 's' : ''}
                       </span>
                     )}
                   </div>
