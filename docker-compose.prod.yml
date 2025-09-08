@@ -1,6 +1,6 @@
 # Production Docker Compose configuration for SynProd
 # This configuration orchestrates the complete application stack for local network deployment
-
+name: synprod-prod
 version: '3.8'
 
 services:
