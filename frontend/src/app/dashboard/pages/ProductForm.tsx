@@ -128,6 +128,13 @@ export function ProductForm() {
     return compositions.reduce((sum, comp) => sum + (comp.percentage || 0), 0);
   };
 
+  // Compute remaining percentage to reach exactly 100%
+  const getRemainingPercentage = (): number => {
+    const remaining = 100 - getTotalPercentage();
+    // Round to one decimal to align with UI precision and slider step
+    return Math.max(0, Math.round(remaining * 10) / 10);
+  };
+
   const validateCompositions = () => {
     if (compositions.length === 0) return true;
     
@@ -419,6 +426,48 @@ export function ProductForm() {
 
                     <div className="form-group">
                       <label>Percentage *</label>
+                      {/* Fill to 100% action (yellow theme) */}
+                      <div style={{ margin: '6px 0 8px 0' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const remaining = getRemainingPercentage();
+                            if (remaining > 0) {
+                              updateComposition(
+                                index,
+                                'percentage',
+                                Math.min(100, Math.round((comp.percentage + remaining) * 10) / 10)
+                              );
+                            }
+                          }}
+                          disabled={getRemainingPercentage() <= 0}
+                          title={getRemainingPercentage() > 0 ? `Add ${getRemainingPercentage().toFixed(1)}% to reach 100%` : 'Total already at 100%'}
+                          style={{
+                            background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                            border: '1px solid #f59e0b',
+                            borderRadius: '4px',
+                            height: '30px',
+                            padding: '0 12px',
+                            color: '#92400e',
+                            cursor: getRemainingPercentage() > 0 ? 'pointer' : 'not-allowed',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap',
+                            fontWeight: 600
+                          }}
+                          onMouseOver={(e) => {
+                            if (getRemainingPercentage() > 0) {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #fde68a, #fcd34d)';
+                              e.currentTarget.style.borderColor = '#d97706';
+                            }
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+                            e.currentTarget.style.borderColor = '#f59e0b';
+                          }}
+                        >
+                          Fill to 100%
+                        </button>
+                      </div>
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
