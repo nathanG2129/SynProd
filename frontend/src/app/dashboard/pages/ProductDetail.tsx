@@ -10,6 +10,7 @@ export function ProductDetail() {
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -23,6 +24,20 @@ export function ProductDetail() {
       loadProduct(parseInt(id));
     }
   }, [id]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const updateIsMobile = () => setIsMobile(mq.matches);
+    updateIsMobile();
+    mq.addEventListener?.('change', updateIsMobile);
+    // @ts-ignore legacy Safari
+    mq.addListener && mq.addListener(updateIsMobile);
+    return () => {
+      mq.removeEventListener?.('change', updateIsMobile);
+      // @ts-ignore legacy Safari
+      mq.removeListener && mq.removeListener(updateIsMobile);
+    };
+  }, []);
 
   const loadProduct = async (productId: number) => {
     try {
@@ -133,10 +148,14 @@ export function ProductDetail() {
           </div>
           
           {canManageProducts && (
-            <div className="product-actions" style={{ display: 'flex', gap: '8px' }}>
+            <div 
+              className="product-actions"
+              style={{ display: 'flex', gap: '8px', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}
+            >
               <Link 
                 to={`/dashboard/products/${product.id}/edit`} 
                 className="btn btn-secondary"
+                style={isMobile ? { width: '100%' } : undefined}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -149,6 +168,7 @@ export function ProductDetail() {
                 <button 
                   onClick={() => setShowDeleteConfirm(true)}
                   className="btn btn-danger"
+                  style={isMobile ? { width: '100%' } : undefined}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 6h18"/>
