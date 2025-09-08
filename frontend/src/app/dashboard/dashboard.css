@@ -427,6 +427,47 @@
   margin: 0;
 }
 
+/* Recipe detail responsive layout */
+.order-capacity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+.recipe-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.composition-item,
+.ingredient-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #fefffe 100%);
+}
+
+.composition-summary {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #f1f6e8, #e8f5c8);
+  border: 1px solid #91b029;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #445c3c;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -721,6 +762,15 @@
   .filters-header { flex-direction: column; align-items: stretch; }
   .filters-actions { width: 100%; justify-content: space-between; }
   .filters-actions select { flex: 1; }
+
+  /* Recipe detail responsiveness */
+  .order-capacity-grid { grid-template-columns: 1fr; }
+  .recipe-sections-grid { grid-template-columns: 1fr; }
+  .composition-item,
+  .ingredient-item,
+  .composition-summary {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Product Form Styles */

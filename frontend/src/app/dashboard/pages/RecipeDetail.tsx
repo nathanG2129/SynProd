@@ -213,7 +213,7 @@ export function RecipeDetail() {
           </span>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', alignItems: 'end' }}>
+        <div className="order-capacity-grid">
           <div className="form-group">
             <label htmlFor="orderQuantity">Quantity</label>
             <input
@@ -301,7 +301,7 @@ export function RecipeDetail() {
 
       {/* Recipe Composition & Additional Ingredients (side-by-side on wide, stacked on narrow) */}
       {(product.compositions && product.compositions.length > 0) || (product.additionalIngredients && product.additionalIngredients.length > 0) ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start' }}>
+        <div className="recipe-sections-grid">
           {product.compositions && product.compositions.length > 0 && (
             <div className="content-card" style={{ padding: '16px' }}>
               <h2 style={{ marginTop: 0 }}>Recipe Composition & Calculated Weights</h2>
@@ -314,17 +314,6 @@ export function RecipeDetail() {
                       <div 
                         key={composition.id || index} 
                         className="composition-item"
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '2fr 1fr 1fr',
-                          gap: '12px',
-                          alignItems: 'center',
-                          padding: '12px',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
-                          marginBottom: '8px',
-                          background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                        }}
                       >
                         <div>
                           <h4 style={{ 
@@ -375,18 +364,7 @@ export function RecipeDetail() {
                   })}
                 
                 {/* Total Composition Check */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1fr 1fr',
-                  gap: '12px',
-                  alignItems: 'center',
-                  padding: '10px 12px',
-                  background: 'linear-gradient(135deg, #f1f6e8, #e8f5c8)',
-                  border: '1px solid #91b029',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  color: '#445c3c'
-                }}>
+                <div className="composition-summary">
                   <span>Total Composition:</span>
                   <span style={{ textAlign: 'center' }}>
                     {product.compositions.reduce((sum, comp) => sum + comp.percentage, 0).toFixed(1)}%
@@ -411,17 +389,6 @@ export function RecipeDetail() {
                       <div 
                         key={ingredient.id || index}
                         className="ingredient-item"
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '2fr 1fr 1fr',
-                          gap: '12px',
-                          alignItems: 'center',
-                          padding: '12px',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
-                          marginBottom: '8px',
-                          background: 'linear-gradient(135deg, #ffffff 0%, #fefffe 100%)'
-                        }}
                       >
                         <div>
                           <h4 style={{ 
