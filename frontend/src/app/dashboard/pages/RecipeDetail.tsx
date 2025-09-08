@@ -35,6 +35,10 @@ export function RecipeDetail() {
   const [error, setError] = useState('');
   const [orderQuantity, setOrderQuantity] = useState<number>(1);
   const [selectedCapacityType, setSelectedCapacityType] = useState<string>('');
+  const [quantityInput, setQuantityInput] = useState<string>('1');
+  const [totalWeightInput, setTotalWeightInput] = useState<string>('');
+  const [isEditingQuantity, setIsEditingQuantity] = useState<boolean>(false);
+  const [isEditingTotalWeight, setIsEditingTotalWeight] = useState<boolean>(false);
   
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -91,20 +95,32 @@ export function RecipeDetail() {
 
   const toSixDecimals = (value: number) => Math.round(value * 1_000_000) / 1_000_000;
 
+  const isTransientNumericInput = (raw: string) => raw === '' || raw === '-' || raw === '.';
+
   const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
+    setQuantityInput(raw);
+    if (isTransientNumericInput(raw)) return;
     const parsed = parseFloat(raw);
-    if (isNaN(parsed)) {
-      setOrderQuantity(0);
-      return;
-    }
+    if (isNaN(parsed)) return;
     const clamped = Math.max(0, parsed);
     setOrderQuantity(toSixDecimals(clamped));
+  };
+
+  const handleQuantityBlur = () => {
+    setIsEditingQuantity(false);
+    if (isTransientNumericInput(quantityInput)) {
+      setOrderQuantity(0);
+    }
+    // Sync display from state
+    setQuantityInput(String(orderQuantity));
   };
 
   const handleTotalWeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!product || !selectedCapacityType) return;
     const raw = e.target.value;
+    setTotalWeightInput(raw);
+    if (isTransientNumericInput(raw)) return;
     const parsed = parseFloat(raw);
     if (isNaN(parsed)) return;
     const total = Math.max(0, parsed);
@@ -113,6 +129,32 @@ export function RecipeDetail() {
     const newQuantity = total / (baseWeight * capacityConfig.multiplier);
     setOrderQuantity(toSixDecimals(newQuantity));
   };
+
+  const handleTotalWeightBlur = () => {
+    setIsEditingTotalWeight(false);
+    if (isTransientNumericInput(totalWeightInput)) {
+      setOrderQuantity(0);
+    }
+    // Sync display from computed total weight
+    const currentTotal = calculateTotalWeight();
+    setTotalWeightInput(String(Number.isFinite(currentTotal) ? Math.round(currentTotal) : 0));
+  };
+
+  // When orderQuantity changes, keep quantity input string in sync unless actively editing
+  useEffect(() => {
+    if (!isEditingQuantity) {
+      setQuantityInput(String(orderQuantity));
+    }
+  }, [orderQuantity, isEditingQuantity]);
+
+  // Keep total weight input in sync with calculated total unless actively editing total weight
+  useEffect(() => {
+    if (!product || !selectedCapacityType) return;
+    if (!isEditingTotalWeight) {
+      const currentTotal = calculateTotalWeight();
+      setTotalWeightInput(String(Number.isFinite(currentTotal) ? Math.round(currentTotal) : 0));
+    }
+  }, [product, selectedCapacityType, orderQuantity, isEditingTotalWeight]);
 
   if (isLoading) {
     return (
@@ -221,8 +263,10 @@ export function RecipeDetail() {
               id="orderQuantity"
               min="0"
               step="0.01"
-              value={orderQuantity}
+              value={quantityInput}
               onChange={handleQuantityInputChange}
+              onFocus={() => setIsEditingQuantity(true)}
+              onBlur={handleQuantityBlur}
               style={{
                 padding: '12px 16px',
                 border: '2px solid #d1d5db',
@@ -262,8 +306,10 @@ export function RecipeDetail() {
               type="number"
               min="0"
               step="1"
-              value={Number.isFinite(totalWeight) ? Number(totalWeight.toFixed(0)) : 0}
+              value={totalWeightInput}
               onChange={handleTotalWeightInputChange}
+              onFocus={() => setIsEditingTotalWeight(true)}
+              onBlur={handleTotalWeightBlur}
               style={{ 
                 background: 'linear-gradient(135deg, #91b029, #7a9a1f)',
                 color: 'white',
