@@ -73,45 +73,6 @@ REM Start services
 echo 🚀 Starting services...
 docker-compose -f "%COMPOSE_FILE%" up -d
 
-echo ✅ Services started
-
-REM Wait a moment for initial startup
-echo ⏳ Waiting for initial startup...
-timeout /t 10 /nobreak >nul
-
-REM Wait for services to be ready
-echo ⏳ Waiting for services to be ready...
-
-REM Wait for postgres
-echo 📊 Waiting for PostgreSQL...
-timeout /t 30 /nobreak >nul
-:wait_postgres
-docker-compose -f "%COMPOSE_FILE%" exec -T postgres pg_isready -U synprod >nul 2>&1
-if errorlevel 1 (
-    timeout /t 2 /nobreak >nul
-    goto :wait_postgres
-)
-
-REM Wait for backend
-echo 📊 Waiting for Backend...
-timeout /t 60 /nobreak >nul
-:wait_backend
-curl -f http://localhost:8080/api/health >nul 2>&1
-if errorlevel 1 (
-    timeout /t 5 /nobreak >nul
-    goto :wait_backend
-)
-
-REM Wait for nginx
-echo 📊 Waiting for Nginx...
-timeout /t 30 /nobreak >nul
-:wait_nginx
-curl -f http://localhost/health >nul 2>&1
-if errorlevel 1 (
-    timeout /t 2 /nobreak >nul
-    goto :wait_nginx
-)
-
 echo ✅ All services are ready
 
 REM Show status
