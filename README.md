@@ -1,183 +1,120 @@
-# SynProd - Authentication System
+# SynProd
 
-A full-stack authentication system built with React, Spring Boot, and PostgreSQL.
+A production‑oriented web application to centralize product recipes and operational data. Built with React 19, Spring Boot 3.5, and PostgreSQL, it delivers stateless JWT authentication with refresh tokens, RBAC‑protected routes, and secure user flows. Operators get validated step‑by‑step instructions, while managers/admins manage product formulations and master data.
+
+## Project Context
+
+- Centralizes product recipes and operational data to improve visibility and decision‑making for the production team.
+- Secure, role‑based system: production members view validated step‑by‑step instructions; managers and admins manage product formulations and master data.
+- Intuitive recipe visualization outlining ingredient specifications, procedures, and quality control checkpoints.
 
 ## Tech Stack
 
 ### Backend
-- **Spring Boot 3.5.4** with Java 21
-- **Spring Security** with JWT authentication
-- **Spring Data JPA** with Hibernate
-- **PostgreSQL** database
-- **BCrypt** password hashing
-- **JWT** for stateless authentication
+- Java 21, Spring Boot 3.5 (Web, Validation, DevTools)
+- Spring Security with JWT (jjwt), BCrypt hashing
+- Spring Data JPA (Hibernate)
+- PostgreSQL (JDBC driver), Gradle build
+- Email via Spring Mail; dotenv for env management
 
 ### Frontend
-- **React 19** with TypeScript
-- **React Router** for navigation
-- **Axios** for API communication
-- **Context API** for state management
-- **Custom form validation** with real-time feedback
+- React 19 + TypeScript, Vite (dev/build), React Router
+- Axios for API calls, Context API for auth/session state
+- MUI v7 with Emotion theming/styling
+- @react-pdf/renderer for client‑side PDF generation
+
+### Tooling & Platform
+- Nx v21 monorepo (React + Vite plugins)
+- Vitest + jsdom test setup
+- Docker and Docker Compose; Nginx reverse proxy
+- Deployment scripts for backend/frontend; environment templating
+- Application and Nginx logs; monitoring placeholders
 
 ## Features
 
-### Authentication
-- ✅ User registration with email verification
-- ✅ User login with JWT tokens
-- ✅ Password reset via email
-- ✅ Email verification system
-- ✅ JWT token refresh mechanism
-- ✅ Protected routes
-- ✅ Role-based access control (RBAC)
+- Domain
+  - Central repository for product recipes and operational data
+  - Role‑aware views: operators see validated instructions; managers/admins maintain formulations and master data
+  - Recipe visualization: ingredients, procedures, and quality control checkpoints
 
-### Security
-- ✅ Password strength validation
-- ✅ BCrypt password hashing
-- ✅ JWT token-based authentication
-- ✅ CORS configuration
-- ✅ Input validation and sanitization
-- ✅ Secure password reset flow
+- Authentication & Authorization
+  - Registration with email verification, login, password reset, refresh tokens
+  - RBAC‑protected routes and server‑side role checks
 
-### User Experience
-- ✅ Real-time form validation
-- ✅ Password strength indicator
-- ✅ Responsive design
-- ✅ Loading states
-- ✅ Error handling
-- ✅ Success feedback
+- Security
+  - Input validation, strong password rules with BCrypt hashing
+  - Configurable CORS and security headers per environment
 
-## Getting Started
+- User Experience
+  - Real‑time form validation and password strength indicators
+  - Responsive UI with MUI v7 + Emotion theming
+
+- Documents
+  - Client‑side PDF generation via @react-pdf/renderer (exportable views)
+
+## Repository Structure
+
+```
+SynProd/
+├─ backend/                # Spring Boot app (Gradle)
+├─ frontend/               # React 19 + TS app (Vite, Nx)
+├─ nginx/                  # Reverse proxy config and static
+├─ scripts/                # Build/deploy/backup/restore helpers
+├─ deployment/             # Guides and environment templates
+├─ data/postgres/          # Local Postgres data (dev)
+└─ docker-compose.yml
+```
+
+## Quick Start
 
 ### Prerequisites
 - Java 21
 - Node.js 18+
-- PostgreSQL
-- Docker (optional, for database)
+- Docker (optional but recommended for local DB)
 
-### Backend Setup
+### 1) Environment
+- Create a `.env` at the repo root for shared values (see `deployment/env.production.template` for reference). Backend also honors Spring profiles and dotenv.
 
-1. **Database Setup**
-   ```bash
-   # Using Docker
-   docker run --name synprod-db -e POSTGRES_DB=synprod -e POSTGRES_USER=synprod -e POSTGRES_PASSWORD=your_password -p 5432:5432 -d postgres:15
-   ```
-
-2. **Environment Variables**
-   Create a `.env` file in the backend directory:
-   ```env
-   DATABASE_URL=jdbc:postgresql://localhost:5432/synprod
-   DATABASE_USERNAME=synprod
-   DATABASE_PASSWORD=your_password
-   JWT_SECRET=your-super-secret-jwt-key-for-development-only-change-in-production
-   ```
-
-3. **Run Backend**
-   ```bash
-   cd backend
-   ./gradlew bootRun
-   ```
-
-### Frontend Setup
-
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Run Frontend**
-   ```bash
-   npx nx serve frontend
-   ```
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/refresh` - Refresh JWT token
-- `GET /api/auth/verify-email` - Verify email address
-- `POST /api/auth/forgot-password` - Request password reset
-- `POST /api/auth/reset-password` - Reset password
-
-### User Management
-- `GET /api/user/profile` - Get current user profile
-- `GET /api/user/{id}` - Get user by ID
-
-## Database Schema
-
-### Users Table
-```sql
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'USER',
-    is_enabled BOOLEAN NOT NULL DEFAULT true,
-    email_verified BOOLEAN NOT NULL DEFAULT false,
-    verification_token VARCHAR(255),
-    reset_token VARCHAR(255),
-    reset_token_expiry TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+### 2) Backend
+```bash
+cd backend
+./gradlew bootRun
 ```
 
-## Development Notes
-
-### Email Configuration
-For development, email links are logged to the console instead of sending actual emails. To enable real email sending:
-
-1. Configure SMTP settings in `application.properties`
-2. Uncomment the email sending code in `EmailService.java`
-
-### JWT Configuration
-- Access tokens expire in 24 hours
-- Refresh tokens expire in 7 days
-- Change the JWT secret in production
-
-### Security Considerations
-- Use strong JWT secrets in production
-- Configure proper CORS settings
-- Enable HTTPS in production
-- Implement rate limiting
-- Add request logging and monitoring
-
-## Project Structure
-
-```
-SynProd/
-├── backend/
-│   ├── src/main/java/com/synprod/SynProd/
-│   │   ├── controller/     # REST controllers
-│   │   ├── dto/           # Data transfer objects
-│   │   ├── entity/        # JPA entities
-│   │   ├── repository/    # Data access layer
-│   │   ├── security/      # Security configuration
-│   │   └── service/       # Business logic
-│   └── src/main/resources/
-│       └── application.properties
-├── frontend/
-│   ├── src/
-│   │   ├── app/           # React components
-│   │   ├── components/    # Reusable components
-│   │   ├── contexts/      # React contexts
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── services/      # API services
-│   │   └── utils/         # Utility functions
-│   └── public/
-└── docker-compose.yml
+### 3) Frontend
+```bash
+npm install
+npx nx serve frontend
 ```
 
-## Contributing
+### 4) Docker Compose (optional)
+```bash
+docker compose up -d
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## API Overview
+
+- POST `/api/auth/register` – Create user, send verification email
+- GET `/api/auth/verify-email` – Verify email via token
+- POST `/api/auth/login` – Obtain access/refresh tokens
+- POST `/api/auth/refresh` – Refresh access token
+- POST `/api/auth/forgot-password` – Request password reset
+- POST `/api/auth/reset-password` – Reset password with token
+- GET `/api/user/profile` – Current user profile (auth required)
+
+Token TTLs, CORS, and security headers are environment‑configurable.
+
+## Deployment
+
+- Nginx serves the frontend and proxies API to the backend
+- Scripts under `scripts/` cover build, deploy, backup/restore, and maintenance
+- Environment templating via `deployment/` and `.env` files
+- Production Docker images can be built via `docker-compose.prod.yml`
+
+
+
+
 
 ## License
 
-MIT License
+MIT
