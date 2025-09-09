@@ -23,15 +23,21 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-synprod} -d ${POSTGRES_DB:-synprod}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+    command: [
+      "postgres",
+      "-c","shared_preload_libraries=pg_stat_statements",
+      "-c","pg_stat_statements.track=all",
+      "-c","track_activity_query_size=2048"
+    ]
 
   # Spring Boot Backend
   backend:

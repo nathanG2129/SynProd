@@ -11,7 +11,6 @@ CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 -- Set up database configuration for production
 ALTER SYSTEM SET shared_preload_libraries = 'pg_stat_statements';
 ALTER SYSTEM SET track_activity_query_size = 2048;
-ALTER SYSTEM SET pg_stat_statements.track = 'all';
 ALTER SYSTEM SET log_statement = 'mod';
 ALTER SYSTEM SET log_min_duration_statement = 1000;
 ALTER SYSTEM SET log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ';
