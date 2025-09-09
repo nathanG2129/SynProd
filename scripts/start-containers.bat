@@ -25,14 +25,6 @@ if not exist "%ENV_FILE%" (
     exit /b 1
 )
 
-REM Check if Docker images exist
-docker images | findstr "synprod-backend" >nul
-if errorlevel 1 (
-    echo ❌ Backend Docker image not found
-    echo 💡 Please run deploy-backend.bat first
-    exit /b 1
-)
-
 REM Check if nginx html directory exists and has content
 if not exist "nginx\html" (
     echo ❌ Nginx html directory not found
@@ -49,21 +41,15 @@ if not exist "nginx\html" (
 
 echo ✅ Prerequisites check passed
 
-REM Build nginx image if it doesn't exist
-docker images | findstr "synprod-nginx" >nul
-if errorlevel 1 (
-    echo 🔨 Building nginx Docker image...
-    docker build -t synprod-nginx:latest ./nginx
-    echo ✅ Nginx Docker image built
-) else (
-    echo ✅ Nginx Docker image found
-)
+REM Build images defined in compose (backend and nginx)
+echo 🔨 Building Docker images via compose...
+docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" build | cat
 
 REM Stop existing services if running
 echo 🛑 Stopping existing services...
-docker-compose -f "%COMPOSE_FILE%" ps -q | findstr . >nul
+docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" ps -q | findstr . >nul
 if not errorlevel 1 (
-    docker-compose -f "%COMPOSE_FILE%" down
+    docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" down
     echo ✅ Services stopped
 ) else (
     echo ℹ️  No running services found
@@ -71,7 +57,7 @@ if not errorlevel 1 (
 
 REM Start services
 echo 🚀 Starting services...
-docker-compose -f "%COMPOSE_FILE%" up -d
+docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" up -d
 
 echo ✅ All services are ready
 
@@ -80,7 +66,7 @@ echo 🎉 SynProd is now running!
 echo =========================
 
 echo 📊 Service Status:
-docker-compose -f "%COMPOSE_FILE%" ps
+docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" ps
 
 echo 🌐 Application URLs:
 echo   Frontend: http://localhost
@@ -88,6 +74,6 @@ echo   Backend API: http://localhost:8080/api
 echo   Health Check: http://localhost/health
 
 echo 📋 Useful Commands:
-echo   View logs: docker-compose -f %COMPOSE_FILE% logs -f
-echo   Stop services: docker-compose -f %COMPOSE_FILE% down
-echo   Restart services: docker-compose -f %COMPOSE_FILE% restart
+echo   View logs: docker-compose -f %COMPOSE_FILE% --env-file %ENV_FILE% logs -f
+echo   Stop services: docker-compose -f %COMPOSE_FILE% --env-file %ENV_FILE% down
+echo   Restart services: docker-compose -f %COMPOSE_FILE% --env-file %ENV_FILE% restart
