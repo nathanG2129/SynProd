@@ -43,7 +43,7 @@ echo ✅ Prerequisites check passed
 
 REM Build images defined in compose (backend and nginx)
 echo 🔨 Building Docker images via compose...
-docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" build | cat
+docker-compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" build
 
 REM Stop existing services if running
 echo 🛑 Stopping existing services...
