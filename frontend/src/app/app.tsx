@@ -2,6 +2,7 @@ import { Route, Routes, Link, Navigate } from 'react-router-dom';
 import { Login } from '../app/auth/login';
 import { Register } from '../app/auth/register';
 import { ForgotPassword } from '../app/auth/forgot-password';
+import { ResetPassword } from '../app/auth/reset-password';
 import { VerifyEmail } from '../app/auth/verify-email';
 import { DashboardLayout } from '../app/dashboard/layout';
 import { DashboardHome } from '../app/dashboard/pages/DashboardHome';
@@ -45,6 +46,14 @@ export function App() {
           element={
             <ProtectedRoute requireAuth={false}>
               <ForgotPassword />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/reset-password" 
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <ResetPassword />
             </ProtectedRoute>
           } 
         />
