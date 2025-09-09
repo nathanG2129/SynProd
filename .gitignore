@@ -72,6 +72,7 @@ application-test.properties
 
 # Frontend Build Outputs
 .vite/
+nginx/html
 
 # Temporary Files
 *.tmp
