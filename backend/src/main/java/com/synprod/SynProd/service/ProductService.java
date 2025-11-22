@@ -211,9 +211,9 @@ public class ProductService {
             for (int i = 0; i < request.getCompositions().size(); i++) {
                 ProductCompositionDto compDto = request.getCompositions().get(i);
                 ProductComposition composition = new ProductComposition();
-                composition.setComponentName(compDto.getComponentName());
+                composition.setComponentName(inputSanitizer.sanitize(compDto.getComponentName()));
                 composition.setPercentage(roundPercentage(compDto.getPercentage()));
-                composition.setNotes(compDto.getNotes());
+                composition.setNotes(inputSanitizer.sanitizeDescription(compDto.getNotes()));
                 composition.setSortOrder(i);
                 product.addComposition(composition);
             }
@@ -224,10 +224,10 @@ public class ProductService {
             for (int i = 0; i < request.getAdditionalIngredients().size(); i++) {
                 ProductIngredientDto ingDto = request.getAdditionalIngredients().get(i);
                 ProductIngredient ingredient = new ProductIngredient();
-                ingredient.setIngredientName(ingDto.getIngredientName());
+                ingredient.setIngredientName(inputSanitizer.sanitize(ingDto.getIngredientName()));
                 ingredient.setQuantity(ingDto.getQuantity());
-                ingredient.setUnit(ingDto.getUnit());
-                ingredient.setNotes(ingDto.getNotes());
+                ingredient.setUnit(inputSanitizer.sanitize(ingDto.getUnit()));
+                ingredient.setNotes(inputSanitizer.sanitizeDescription(ingDto.getNotes()));
                 ingredient.setSortOrder(i);
                 product.addIngredient(ingredient);
             }
