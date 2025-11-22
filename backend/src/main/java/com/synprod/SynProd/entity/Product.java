@@ -14,7 +14,8 @@ import java.util.List;
     @Index(name = "idx_product_name", columnList = "name"),
     @Index(name = "idx_product_type", columnList = "product_type"),
     @Index(name = "idx_product_created_by", columnList = "created_by"),
-    @Index(name = "idx_product_created_at", columnList = "created_at")
+    @Index(name = "idx_product_created_at", columnList = "created_at"),
+    @Index(name = "idx_product_deleted_at", columnList = "deleted_at")
 })
 public class Product {
 
@@ -48,9 +49,16 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -185,5 +193,25 @@ public class Product {
         return compositions.stream()
                 .mapToDouble(ProductComposition::getPercentage)
                 .sum();
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

@@ -4,6 +4,9 @@ import com.synprod.SynProd.dto.AuthRequest;
 import com.synprod.SynProd.dto.AuthResponse;
 import com.synprod.SynProd.dto.RegisterRequest;
 import com.synprod.SynProd.entity.User;
+import com.synprod.SynProd.exception.DuplicateResourceException;
+import com.synprod.SynProd.exception.InvalidTokenException;
+import com.synprod.SynProd.exception.UserNotFoundException;
 import com.synprod.SynProd.repository.UserRepository;
 import com.synprod.SynProd.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,7 +44,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User with this email already exists");
+            throw new DuplicateResourceException("User with this email already exists");
         }
 
         // Create new user
@@ -50,6 +54,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24)); // 24 hour expiry
 
         // Save user
         user = userRepository.save(user);
@@ -67,7 +72,7 @@ public class AuthService {
 
         // Load user details
         UserDetails userDetails = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Generate tokens
         String token = jwtUtil.generateToken(userDetails);
@@ -81,12 +86,12 @@ public class AuthService {
 
     public AuthResponse refreshToken(String refreshToken) {
         if (!jwtUtil.isRefreshToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new InvalidTokenException("Invalid refresh token");
         }
 
         String email = jwtUtil.extractUsername(refreshToken);
         UserDetails userDetails = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (jwtUtil.validateToken(refreshToken, userDetails)) {
             String newToken = jwtUtil.generateToken(userDetails);
@@ -95,16 +100,23 @@ public class AuthService {
             User user = userRepository.findByEmail(email).orElseThrow();
             return AuthResponse.success(newToken, newRefreshToken, user);
         } else {
-            throw new RuntimeException("Invalid refresh token");
+            throw new InvalidTokenException("Invalid refresh token");
         }
     }
 
     public AuthResponse verifyEmail(String token) {
         User user = userRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid verification token"));
+
+        // Check if token has expired
+        if (user.getVerificationTokenExpiry() != null && 
+            user.getVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Verification token has expired. Please request a new one.");
+        }
 
         user.setEmailVerified(true);
         user.setVerificationToken(null);
+        user.setVerificationTokenExpiry(null);
         userRepository.save(user);
 
         return AuthResponse.message("Email verified successfully. You can now log in.");
@@ -130,10 +142,10 @@ public class AuthService {
 
     public AuthResponse resetPassword(String token, String newPassword) {
         User user = userRepository.findByResetToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid reset token"));
 
-        if (user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
-            throw new RuntimeException("Reset token has expired");
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Reset token has expired");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

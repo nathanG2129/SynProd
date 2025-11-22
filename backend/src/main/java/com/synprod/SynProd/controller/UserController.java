@@ -4,10 +4,11 @@ import com.synprod.SynProd.dto.UpdateUserRequest;
 import com.synprod.SynProd.dto.UserDto;
 import com.synprod.SynProd.entity.Role;
 import com.synprod.SynProd.entity.User;
+import com.synprod.SynProd.exception.UnauthorizedException;
+import com.synprod.SynProd.exception.UserNotFoundException;
 import com.synprod.SynProd.repository.UserRepository;
 import com.synprod.SynProd.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -35,7 +36,7 @@ public class UserController {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return ResponseEntity.ok(UserDto.fromUser(user));
     }
@@ -52,19 +53,29 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        // Get current authenticated user
+        // Get current authenticated user from SecurityContext (already loaded by JWT filter)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
-        User currentUser = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Current user not found"));
+        
+        // Safe cast with type checking
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            throw new UnauthorizedException("Authentication required");
+        }
+        
+        User currentUser = (User) authentication.getPrincipal();
 
         // Authorization check: Only ADMIN or the user themselves can access
         if (!currentUser.getId().equals(id) && currentUser.getRole() != Role.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new UnauthorizedException("You can only access your own profile");
         }
 
+        // If requesting own profile, return current user (avoid extra query)
+        if (currentUser.getId().equals(id)) {
+            return ResponseEntity.ok(UserDto.fromUser(currentUser));
+        }
+
+        // Otherwise, fetch the requested user (ADMIN accessing another user)
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         return ResponseEntity.ok(UserDto.fromUser(user));
     }
@@ -73,13 +84,7 @@ public class UserController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        try {
-            UserDto user = userService.updateUser(id, request);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        UserDto user = userService.updateUser(id, request);
+        return ResponseEntity.ok(user);
     }
 }

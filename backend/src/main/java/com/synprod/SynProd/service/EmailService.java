@@ -1,5 +1,7 @@
 package com.synprod.SynProd.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -7,6 +9,8 @@ import org.springframework.mail.SimpleMailMessage;
 
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
@@ -21,12 +25,9 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String toEmail, String token) {
-        // For development, just log the verification link
-        System.out.println("=== EMAIL VERIFICATION ===");
-        System.out.println("To: " + toEmail);
-        System.out.println("Subject: Verify Your Email - SynProd");
-        System.out.println("Verification Link: " + frontendUrl + "/verify-email?token=" + token);
-        System.out.println("==========================");
+        // Log verification link for development
+        log.info("Sending verification email to: {}", toEmail);
+        log.debug("Verification link: {}/verify-email?token={}", frontendUrl, token);
 
         // Send real email when SMTP is configured
         try {
@@ -45,18 +46,17 @@ public class EmailService {
                     frontendUrl, token));
 
             mailSender.send(message);
+            log.info("Verification email sent successfully to: {}", toEmail);
         } catch (Exception ex) {
-            System.err.println("Failed to send verification email: " + ex.getMessage());
+            // Log error but don't throw - email failure shouldn't prevent user registration
+            log.error("Failed to send verification email to: {}. User can request resend later.", toEmail, ex);
         }
     }
 
     public void sendPasswordResetEmail(String toEmail, String token) {
-        // For development, just log the reset link
-        System.out.println("=== PASSWORD RESET EMAIL ===");
-        System.out.println("To: " + toEmail);
-        System.out.println("Subject: Password Reset Request - SynProd");
-        System.out.println("Reset Link: " + frontendUrl + "/reset-password?token=" + token);
-        System.out.println("=============================");
+        // Log reset link for development
+        log.info("Sending password reset email to: {}", toEmail);
+        log.debug("Reset link: {}/reset-password?token={}", frontendUrl, token);
 
         // Send real email when SMTP is configured
         try {
@@ -77,8 +77,10 @@ public class EmailService {
                     frontendUrl, token));
 
             mailSender.send(message);
+            log.info("Password reset email sent successfully to: {}", toEmail);
         } catch (Exception ex) {
-            System.err.println("Failed to send reset email: " + ex.getMessage());
+            // Log error but don't throw - email failure shouldn't prevent password reset token creation
+            log.error("Failed to send password reset email to: {}. Token is still valid if user has the link.", toEmail, ex);
         }
     }
 }

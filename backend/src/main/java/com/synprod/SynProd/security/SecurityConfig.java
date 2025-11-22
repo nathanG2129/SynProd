@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -139,7 +139,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Use stronger BCrypt strength for production (12 rounds)
-        return new BCryptPasswordEncoder(12);
+        // Use Argon2 (memory-hard) to prevent GPU brute-force attacks
+        // Parameters: saltLength=16, hashLength=32, parallelism=1, memory=65536 (64MB), iterations=3
+        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 }

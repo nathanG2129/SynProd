@@ -3,7 +3,10 @@ package com.synprod.SynProd.service;
 import com.synprod.SynProd.dto.UpdateUserRequest;
 import com.synprod.SynProd.dto.UserDto;
 import com.synprod.SynProd.entity.User;
+import com.synprod.SynProd.exception.DuplicateResourceException;
+import com.synprod.SynProd.exception.UserNotFoundException;
 import com.synprod.SynProd.repository.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +26,7 @@ public class UserService {
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
         // Find the user by ID
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        // Check if email is being changed and if so, validate uniqueness
-        if (!user.getEmail().equals(request.getEmail())) {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new RuntimeException("Email already exists: " + request.getEmail());
-            }
-        }
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         // Update user fields
         user.setFirstName(request.getFirstName());
@@ -39,10 +35,13 @@ public class UserService {
         user.setRole(request.getRole());
         user.setEnabled(request.getEnabled());
 
-        // Save the updated user
-        User savedUser = userRepository.save(user);
-
-        // Return UserDto
-        return UserDto.fromUser(savedUser);
+        // Save the updated user - let database unique constraint handle race conditions
+        try {
+            User savedUser = userRepository.save(user);
+            return UserDto.fromUser(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            // Database constraint violation (likely duplicate email)
+            throw new DuplicateResourceException("Email already exists: " + request.getEmail());
+        }
     }
 }

@@ -44,6 +44,10 @@ public class ProductIngredient {
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     // Constructors
     public ProductIngredient() {
     }

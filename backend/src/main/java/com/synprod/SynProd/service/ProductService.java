@@ -8,10 +8,18 @@ import com.synprod.SynProd.entity.Product;
 import com.synprod.SynProd.entity.ProductComposition;
 import com.synprod.SynProd.entity.ProductIngredient;
 import com.synprod.SynProd.entity.ProductType;
+import com.synprod.SynProd.entity.Role;
 import com.synprod.SynProd.entity.User;
+import com.synprod.SynProd.exception.ProductNotFoundException;
+import com.synprod.SynProd.exception.UnauthorizedException;
+import com.synprod.SynProd.exception.UserNotFoundException;
+import com.synprod.SynProd.exception.ValidationException;
+import com.synprod.SynProd.exception.DuplicateResourceException;
 import com.synprod.SynProd.repository.ProductRepository;
 import com.synprod.SynProd.repository.UserRepository;
 import com.synprod.SynProd.util.InputSanitizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,6 +34,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class ProductService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -61,7 +71,12 @@ public class ProductService {
     public ProductDto getProductById(Long id) {
         // First, get the product with basic info and user
         Product product = productRepository.findByIdWithRecipeData(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        
+        // Check if product is soft deleted
+        if (product.isDeleted()) {
+            throw new ProductNotFoundException(id);
+        }
 
         // Then fetch compositions and ingredients separately to avoid Cartesian product
         // issues
@@ -200,7 +215,7 @@ public class ProductService {
 
         // Check if product name already exists
         if (productRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), null)) {
-            throw new RuntimeException("Product with name '" + request.getName() + "' already exists");
+            throw new DuplicateResourceException("Product with name '" + request.getName() + "' already exists");
         }
 
         // Get current user
@@ -258,7 +273,7 @@ public class ProductService {
                     .sum();
 
             if (Math.abs(totalPercentage - 100.0) > 0.01) { // Allow small floating point differences
-                throw new RuntimeException(
+                throw new ValidationException(
                         "Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
             }
         }
@@ -269,7 +284,20 @@ public class ProductService {
 
         // Check if product exists and load with full recipe data
         Product product = productRepository.findByIdWithRecipeData(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        
+        // Check if product is soft deleted
+        if (product.isDeleted()) {
+            throw new ProductNotFoundException(id);
+        }
+        
+        // IDOR Protection: Verify ownership (only creator or ADMIN can update)
+        User currentUser = getCurrentUser();
+        if (!product.getCreatedBy().getId().equals(currentUser.getId()) && currentUser.getRole() != Role.ADMIN) {
+            log.warn("User {} attempted to update product {} owned by {}", 
+                currentUser.getId(), id, product.getCreatedBy().getId());
+            throw new UnauthorizedException("You can only update products you created");
+        }
 
         // Load compositions and ingredients separately to avoid Cartesian product
         // issues
@@ -281,7 +309,7 @@ public class ProductService {
         // Check if new name conflicts with existing products (excluding current
         // product)
         if (productRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
-            throw new RuntimeException("Product with name '" + request.getName() + "' already exists");
+            throw new DuplicateResourceException("Product with name '" + request.getName() + "' already exists");
         }
 
         // Update product fields with sanitized inputs
@@ -327,12 +355,30 @@ public class ProductService {
         return ProductDto.fromEntity(savedProduct);
     }
 
-    // Delete product
+    // Soft delete product
+    @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        
+        // Check if already deleted
+        if (product.isDeleted()) {
+            throw new ProductNotFoundException(id);
+        }
+        
+        // IDOR Protection: Verify ownership (only creator or ADMIN can delete)
+        User currentUser = getCurrentUser();
+        if (!product.getCreatedBy().getId().equals(currentUser.getId()) && currentUser.getRole() != Role.ADMIN) {
+            log.warn("User {} attempted to delete product {} owned by {}", 
+                currentUser.getId(), id, product.getCreatedBy().getId());
+            throw new UnauthorizedException("You can only delete products you created");
+        }
 
-        productRepository.delete(product);
+        // Soft delete: Set deletedAt timestamp instead of hard delete
+        product.setDeletedAt(java.time.LocalDateTime.now());
+        productRepository.save(product);
+        
+        log.info("Product {} soft deleted by user {}", id, currentUser.getId());
     }
 
     // Get products created by current user
@@ -350,7 +396,7 @@ public class ProductService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Current user not found"));
+                .orElseThrow(() -> new UserNotFoundException("Current user not found"));
     }
 
     /**
@@ -362,12 +408,12 @@ public class ProductService {
     private void validateProductInput(CreateProductRequest request) {
         // Validate product name and description
         if (!inputSanitizer.isSafe(request.getName())) {
-            throw new RuntimeException("Product name contains invalid or dangerous content");
+            throw new ValidationException("Product name contains invalid or dangerous content");
         }
 
         String sanitizedName = inputSanitizer.sanitize(request.getName());
         if (sanitizedName == null || sanitizedName.isBlank()) {
-            throw new RuntimeException("Product name cannot be empty or contain only HTML/script tags");
+            throw new ValidationException("Product name cannot be empty or contain only HTML/script tags");
         }
 
         // Validate compositions
@@ -376,13 +422,13 @@ public class ProductService {
                 ProductCompositionDto comp = request.getCompositions().get(i);
 
                 if (!inputSanitizer.isSafe(comp.getComponentName())) {
-                    throw new RuntimeException(
+                    throw new ValidationException(
                             "Component name at position " + (i + 1) + " contains invalid or dangerous content");
                 }
 
                 String sanitizedComponentName = inputSanitizer.sanitize(comp.getComponentName());
                 if (sanitizedComponentName == null || sanitizedComponentName.isBlank()) {
-                    throw new RuntimeException("Component name at position " + (i + 1)
+                    throw new ValidationException("Component name at position " + (i + 1)
                             + " cannot be empty or contain only HTML/script tags");
                 }
             }
@@ -394,24 +440,24 @@ public class ProductService {
                 ProductIngredientDto ing = request.getAdditionalIngredients().get(i);
 
                 if (!inputSanitizer.isSafe(ing.getIngredientName())) {
-                    throw new RuntimeException(
+                    throw new ValidationException(
                             "Ingredient name at position " + (i + 1) + " contains invalid or dangerous content");
                 }
 
                 String sanitizedIngredientName = inputSanitizer.sanitize(ing.getIngredientName());
                 if (sanitizedIngredientName == null || sanitizedIngredientName.isBlank()) {
-                    throw new RuntimeException("Ingredient name at position " + (i + 1)
+                    throw new ValidationException("Ingredient name at position " + (i + 1)
                             + " cannot be empty or contain only HTML/script tags");
                 }
 
                 if (!inputSanitizer.isSafe(ing.getUnit())) {
-                    throw new RuntimeException(
+                    throw new ValidationException(
                             "Unit at position " + (i + 1) + " contains invalid or dangerous content");
                 }
 
                 String sanitizedUnit = inputSanitizer.sanitize(ing.getUnit());
                 if (sanitizedUnit == null || sanitizedUnit.isBlank()) {
-                    throw new RuntimeException(
+                    throw new ValidationException(
                             "Unit at position " + (i + 1) + " cannot be empty or contain only HTML/script tags");
                 }
             }

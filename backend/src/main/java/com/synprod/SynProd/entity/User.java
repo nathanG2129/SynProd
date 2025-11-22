@@ -17,7 +17,8 @@ import java.util.List;
     @Index(name = "idx_user_email", columnList = "email", unique = true),
     @Index(name = "idx_user_verification_token", columnList = "verification_token"),
     @Index(name = "idx_user_reset_token", columnList = "reset_token"),
-    @Index(name = "idx_user_role", columnList = "role")
+    @Index(name = "idx_user_role", columnList = "role"),
+    @Index(name = "idx_user_verification_expiry", columnList = "verification_token_expiry")
 })
 public class User implements UserDetails {
 
@@ -58,6 +59,9 @@ public class User implements UserDetails {
     @Column(name = "verification_token")
     private String verificationToken;
 
+    @Column(name = "verification_token_expiry")
+    private LocalDateTime verificationTokenExpiry;
+
     @Column(name = "reset_token")
     private String resetToken;
 
@@ -69,6 +73,10 @@ public class User implements UserDetails {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @PrePersist
     protected void onCreate() {
@@ -193,6 +201,14 @@ public class User implements UserDetails {
         this.verificationToken = verificationToken;
     }
 
+    public LocalDateTime getVerificationTokenExpiry() {
+        return verificationTokenExpiry;
+    }
+
+    public void setVerificationTokenExpiry(LocalDateTime verificationTokenExpiry) {
+        this.verificationTokenExpiry = verificationTokenExpiry;
+    }
+
     public String getResetToken() {
         return resetToken;
     }
@@ -227,5 +243,13 @@ public class User implements UserDetails {
 
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
