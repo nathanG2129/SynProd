@@ -126,9 +126,8 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
 
-        // Security enhancements for production
-        authProvider.setHideUserNotFoundExceptions(false); // Don't hide user not found exceptions
-        // Use default user cache for production
+        // Security enhancement: Hide user not found exceptions to prevent user enumeration
+        authProvider.setHideUserNotFoundExceptions(true);
 
         return authProvider;
     }

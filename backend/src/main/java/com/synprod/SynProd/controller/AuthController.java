@@ -1,8 +1,6 @@
 package com.synprod.SynProd.controller;
 
-import com.synprod.SynProd.dto.AuthRequest;
-import com.synprod.SynProd.dto.AuthResponse;
-import com.synprod.SynProd.dto.RegisterRequest;
+import com.synprod.SynProd.dto.*;
 import com.synprod.SynProd.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
@@ -40,19 +37,19 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestParam String refreshToken) {
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         try {
-            AuthResponse response = authService.refreshToken(refreshToken);
+            AuthResponse response = authService.refreshToken(request.getRefreshToken());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));
         }
     }
 
-    @GetMapping("/verify-email")
-    public ResponseEntity<AuthResponse> verifyEmail(@RequestParam String token) {
+    @PostMapping("/verify-email")
+    public ResponseEntity<AuthResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         try {
-            AuthResponse response = authService.verifyEmail(token);
+            AuthResponse response = authService.verifyEmail(request.getToken());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));
@@ -60,9 +57,9 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<AuthResponse> forgotPassword(@RequestParam String email) {
+    public ResponseEntity<AuthResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
-            AuthResponse response = authService.forgotPassword(email);
+            AuthResponse response = authService.forgotPassword(request.getEmail());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));
@@ -70,11 +67,9 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<AuthResponse> resetPassword(
-            @RequestParam String token,
-            @RequestParam String newPassword) {
+    public ResponseEntity<AuthResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
-            AuthResponse response = authService.resetPassword(token, newPassword);
+            AuthResponse response = authService.resetPassword(request.getToken(), request.getNewPassword());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));

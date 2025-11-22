@@ -2,6 +2,7 @@ package com.synprod.SynProd.controller;
 
 import com.synprod.SynProd.dto.UpdateUserRequest;
 import com.synprod.SynProd.dto.UserDto;
+import com.synprod.SynProd.entity.Role;
 import com.synprod.SynProd.entity.User;
 import com.synprod.SynProd.repository.UserRepository;
 import com.synprod.SynProd.service.UserService;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -52,6 +52,17 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        // Get current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User currentUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+
+        // Authorization check: Only ADMIN or the user themselves can access
+        if (!currentUser.getId().equals(id) && currentUser.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

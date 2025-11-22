@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -110,17 +111,21 @@ public class AuthService {
     }
 
     public AuthResponse forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        String resetToken = UUID.randomUUID().toString();
-        user.setResetToken(resetToken);
-        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(24));
-        userRepository.save(user);
-
-        emailService.sendPasswordResetEmail(email, resetToken);
-
-        return AuthResponse.message("Password reset email sent. Please check your email.");
+        // Prevent user enumeration: Always return success message
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            String resetToken = UUID.randomUUID().toString();
+            user.setResetToken(resetToken);
+            user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(24));
+            userRepository.save(user);
+            
+            emailService.sendPasswordResetEmail(email, resetToken);
+        }
+        
+        // Generic message regardless of whether user exists (prevents enumeration)
+        return AuthResponse.message("If an account exists with this email, a password reset link has been sent.");
     }
 
     public AuthResponse resetPassword(String token, String newPassword) {

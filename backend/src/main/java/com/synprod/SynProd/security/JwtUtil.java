@@ -2,11 +2,13 @@ package com.synprod.SynProd.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +17,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:defaultSecretKeyForDevelopmentOnly}")
+    @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
@@ -24,8 +26,28 @@ public class JwtUtil {
     @Value("${jwt.refresh-expiration:604800000}") // 7 days in milliseconds
     private long refreshExpiration;
 
+    @PostConstruct
+    public void validateJwtSecret() {
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException(
+                "JWT_SECRET environment variable must be set. " +
+                "Generate a secure secret with: openssl rand -base64 64"
+            );
+        }
+        
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException(
+                "JWT_SECRET must be at least 32 bytes (256 bits) long. " +
+                "Current length: " + keyBytes.length + " bytes. " +
+                "Generate a secure secret with: openssl rand -base64 64"
+            );
+        }
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
