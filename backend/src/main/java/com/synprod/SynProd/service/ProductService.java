@@ -31,7 +31,8 @@ public class ProductService {
     private final UserRepository userRepository;
     private final InputSanitizer inputSanitizer;
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, InputSanitizer inputSanitizer) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository,
+            InputSanitizer inputSanitizer) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.inputSanitizer = inputSanitizer;
@@ -77,34 +78,34 @@ public class ProductService {
         if (name == null || name.isBlank()) {
             return getAllProducts();
         }
-        
+
         // Sanitize input: remove wildcards, limit length to prevent DoS
         String sanitized = sanitizeSearchInput(name);
         String pattern = "%" + sanitized + "%";
-        
+
         List<Product> products = productRepository.findByNameContainingIgnoreCase(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
     }
-    
+
     // Helper method to sanitize search input
     private String sanitizeSearchInput(String input) {
         if (input == null || input.isBlank()) {
             return "";
         }
-        
+
         // Remove existing wildcards to prevent pattern injection
         String sanitized = input.replaceAll("[%_]", "");
-        
+
         // Trim whitespace
         sanitized = sanitized.trim();
-        
+
         // Limit length to prevent DoS via complex patterns
         if (sanitized.length() > 100) {
             sanitized = sanitized.substring(0, 100);
         }
-        
+
         return sanitized;
     }
 
@@ -117,8 +118,10 @@ public class ProductService {
             ProductType productType) {
         // Sanitize all search inputs
         String namePattern = name == null || name.isBlank() ? null : "%" + sanitizeSearchInput(name) + "%";
-        String descriptionPattern = description == null || description.isBlank() ? null : "%" + sanitizeSearchInput(description) + "%";
-        String componentPattern = componentName == null || componentName.isBlank() ? null : "%" + sanitizeSearchInput(componentName) + "%";
+        String descriptionPattern = description == null || description.isBlank() ? null
+                : "%" + sanitizeSearchInput(description) + "%";
+        String componentPattern = componentName == null || componentName.isBlank() ? null
+                : "%" + sanitizeSearchInput(componentName) + "%";
         String ingredientPattern = ingredientName == null || ingredientName.isBlank() ? null
                 : "%" + sanitizeSearchInput(ingredientName) + "%";
 
@@ -134,7 +137,7 @@ public class ProductService {
         if (componentName == null || componentName.isBlank()) {
             return getAllProducts();
         }
-        
+
         String pattern = "%" + sanitizeSearchInput(componentName) + "%";
         List<Product> products = productRepository.findByComponentName(pattern);
         return products.stream()
@@ -147,7 +150,7 @@ public class ProductService {
         if (ingredientName == null || ingredientName.isBlank()) {
             return getAllProducts();
         }
-        
+
         String pattern = "%" + sanitizeSearchInput(ingredientName) + "%";
         List<Product> products = productRepository.findByIngredientName(pattern);
         return products.stream()
@@ -190,6 +193,10 @@ public class ProductService {
                         "Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
             }
         }
+
+        // Validate input before sanitization to prevent empty strings after
+        // sanitization
+        validateProductInput(request);
 
         // Check if product name already exists
         if (productRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), null)) {
@@ -255,6 +262,10 @@ public class ProductService {
                         "Total composition percentage must equal 100%. Current total: " + totalPercentage + "%");
             }
         }
+
+        // Validate input before sanitization to prevent empty strings after
+        // sanitization
+        validateProductInput(request);
 
         // Check if product exists and load with full recipe data
         Product product = productRepository.findByIdWithRecipeData(id)
@@ -340,5 +351,70 @@ public class ProductService {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Current user not found"));
+    }
+
+    /**
+     * Validates product input to ensure that after sanitization, required fields
+     * won't be empty.
+     * This prevents validation failures when sanitization removes all content
+     * (e.g., pure HTML/script).
+     */
+    private void validateProductInput(CreateProductRequest request) {
+        // Validate product name and description
+        if (!inputSanitizer.isSafe(request.getName())) {
+            throw new RuntimeException("Product name contains invalid or dangerous content");
+        }
+
+        String sanitizedName = inputSanitizer.sanitize(request.getName());
+        if (sanitizedName == null || sanitizedName.isBlank()) {
+            throw new RuntimeException("Product name cannot be empty or contain only HTML/script tags");
+        }
+
+        // Validate compositions
+        if (request.getCompositions() != null) {
+            for (int i = 0; i < request.getCompositions().size(); i++) {
+                ProductCompositionDto comp = request.getCompositions().get(i);
+
+                if (!inputSanitizer.isSafe(comp.getComponentName())) {
+                    throw new RuntimeException(
+                            "Component name at position " + (i + 1) + " contains invalid or dangerous content");
+                }
+
+                String sanitizedComponentName = inputSanitizer.sanitize(comp.getComponentName());
+                if (sanitizedComponentName == null || sanitizedComponentName.isBlank()) {
+                    throw new RuntimeException("Component name at position " + (i + 1)
+                            + " cannot be empty or contain only HTML/script tags");
+                }
+            }
+        }
+
+        // Validate ingredients
+        if (request.getAdditionalIngredients() != null) {
+            for (int i = 0; i < request.getAdditionalIngredients().size(); i++) {
+                ProductIngredientDto ing = request.getAdditionalIngredients().get(i);
+
+                if (!inputSanitizer.isSafe(ing.getIngredientName())) {
+                    throw new RuntimeException(
+                            "Ingredient name at position " + (i + 1) + " contains invalid or dangerous content");
+                }
+
+                String sanitizedIngredientName = inputSanitizer.sanitize(ing.getIngredientName());
+                if (sanitizedIngredientName == null || sanitizedIngredientName.isBlank()) {
+                    throw new RuntimeException("Ingredient name at position " + (i + 1)
+                            + " cannot be empty or contain only HTML/script tags");
+                }
+
+                if (!inputSanitizer.isSafe(ing.getUnit())) {
+                    throw new RuntimeException(
+                            "Unit at position " + (i + 1) + " contains invalid or dangerous content");
+                }
+
+                String sanitizedUnit = inputSanitizer.sanitize(ing.getUnit());
+                if (sanitizedUnit == null || sanitizedUnit.isBlank()) {
+                    throw new RuntimeException(
+                            "Unit at position " + (i + 1) + " cannot be empty or contain only HTML/script tags");
+                }
+            }
+        }
     }
 }
