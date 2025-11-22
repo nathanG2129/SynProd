@@ -11,9 +11,11 @@ import com.synprod.SynProd.entity.ProductType;
 import com.synprod.SynProd.entity.User;
 import com.synprod.SynProd.repository.ProductRepository;
 import com.synprod.SynProd.repository.UserRepository;
+import com.synprod.SynProd.util.InputSanitizer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -27,10 +29,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final InputSanitizer inputSanitizer;
 
-    public ProductService(ProductRepository productRepository, UserRepository userRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, InputSanitizer inputSanitizer) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.inputSanitizer = inputSanitizer;
     }
 
     // Helper method to round percentage to 2 decimal places
@@ -45,7 +49,8 @@ public class ProductService {
 
     // Get all products with basic info (for product list)
     public List<ProductDto> getAllProducts() {
-        List<Product> products = productRepository.findAllOrderByName();
+        // Use query that fetches user to prevent N+1 queries
+        List<Product> products = productRepository.findAllOrderByNameWithUser();
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
@@ -69,11 +74,38 @@ public class ProductService {
 
     // Search products by name
     public List<ProductDto> searchProductsByName(String name) {
-        String pattern = name == null || name.isBlank() ? null : "%" + name + "%";
+        if (name == null || name.isBlank()) {
+            return getAllProducts();
+        }
+        
+        // Sanitize input: remove wildcards, limit length to prevent DoS
+        String sanitized = sanitizeSearchInput(name);
+        String pattern = "%" + sanitized + "%";
+        
         List<Product> products = productRepository.findByNameContainingIgnoreCase(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+    
+    // Helper method to sanitize search input
+    private String sanitizeSearchInput(String input) {
+        if (input == null || input.isBlank()) {
+            return "";
+        }
+        
+        // Remove existing wildcards to prevent pattern injection
+        String sanitized = input.replaceAll("[%_]", "");
+        
+        // Trim whitespace
+        sanitized = sanitized.trim();
+        
+        // Limit length to prevent DoS via complex patterns
+        if (sanitized.length() > 100) {
+            sanitized = sanitized.substring(0, 100);
+        }
+        
+        return sanitized;
     }
 
     // Advanced search with multiple filters
@@ -83,11 +115,12 @@ public class ProductService {
             String componentName,
             String ingredientName,
             ProductType productType) {
-        String namePattern = name == null || name.isBlank() ? null : "%" + name + "%";
-        String descriptionPattern = description == null || description.isBlank() ? null : "%" + description + "%";
-        String componentPattern = componentName == null || componentName.isBlank() ? null : "%" + componentName + "%";
+        // Sanitize all search inputs
+        String namePattern = name == null || name.isBlank() ? null : "%" + sanitizeSearchInput(name) + "%";
+        String descriptionPattern = description == null || description.isBlank() ? null : "%" + sanitizeSearchInput(description) + "%";
+        String componentPattern = componentName == null || componentName.isBlank() ? null : "%" + sanitizeSearchInput(componentName) + "%";
         String ingredientPattern = ingredientName == null || ingredientName.isBlank() ? null
-                : "%" + ingredientName + "%";
+                : "%" + sanitizeSearchInput(ingredientName) + "%";
 
         List<Product> products = productRepository.findWithFilters(
                 namePattern, descriptionPattern, componentPattern, ingredientPattern, productType);
@@ -98,7 +131,11 @@ public class ProductService {
 
     // Search by component name
     public List<ProductDto> searchProductsByComponent(String componentName) {
-        String pattern = componentName == null || componentName.isBlank() ? null : "%" + componentName + "%";
+        if (componentName == null || componentName.isBlank()) {
+            return getAllProducts();
+        }
+        
+        String pattern = "%" + sanitizeSearchInput(componentName) + "%";
         List<Product> products = productRepository.findByComponentName(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
@@ -107,7 +144,11 @@ public class ProductService {
 
     // Search by ingredient name
     public List<ProductDto> searchProductsByIngredient(String ingredientName) {
-        String pattern = ingredientName == null || ingredientName.isBlank() ? null : "%" + ingredientName + "%";
+        if (ingredientName == null || ingredientName.isBlank()) {
+            return getAllProducts();
+        }
+        
+        String pattern = "%" + sanitizeSearchInput(ingredientName) + "%";
         List<Product> products = productRepository.findByIngredientName(pattern);
         return products.stream()
                 .map(ProductDto::fromEntity)
@@ -158,10 +199,10 @@ public class ProductService {
         // Get current user
         User currentUser = getCurrentUser();
 
-        // Create product entity
+        // Create product entity with sanitized inputs
         Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
+        product.setName(inputSanitizer.sanitize(request.getName()));
+        product.setDescription(inputSanitizer.sanitizeDescription(request.getDescription()));
         product.setProductType(request.getProductType());
         product.setCreatedBy(currentUser);
 
@@ -200,6 +241,7 @@ public class ProductService {
     }
 
     // Update existing product
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ProductDto updateProduct(Long id, CreateProductRequest request) {
         // Validate that composition percentages add up to 100% (if any compositions are
         // provided)
@@ -231,9 +273,9 @@ public class ProductService {
             throw new RuntimeException("Product with name '" + request.getName() + "' already exists");
         }
 
-        // Update product fields
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
+        // Update product fields with sanitized inputs
+        product.setName(inputSanitizer.sanitize(request.getName()));
+        product.setDescription(inputSanitizer.sanitizeDescription(request.getDescription()));
         product.setProductType(request.getProductType());
 
         // Clear existing compositions and ingredients
@@ -245,9 +287,9 @@ public class ProductService {
             for (int i = 0; i < request.getCompositions().size(); i++) {
                 ProductCompositionDto compDto = request.getCompositions().get(i);
                 ProductComposition composition = new ProductComposition();
-                composition.setComponentName(compDto.getComponentName());
+                composition.setComponentName(inputSanitizer.sanitize(compDto.getComponentName()));
                 composition.setPercentage(roundPercentage(compDto.getPercentage()));
-                composition.setNotes(compDto.getNotes());
+                composition.setNotes(inputSanitizer.sanitizeDescription(compDto.getNotes()));
                 composition.setSortOrder(i);
                 product.addComposition(composition);
             }
@@ -258,10 +300,10 @@ public class ProductService {
             for (int i = 0; i < request.getAdditionalIngredients().size(); i++) {
                 ProductIngredientDto ingDto = request.getAdditionalIngredients().get(i);
                 ProductIngredient ingredient = new ProductIngredient();
-                ingredient.setIngredientName(ingDto.getIngredientName());
+                ingredient.setIngredientName(inputSanitizer.sanitize(ingDto.getIngredientName()));
                 ingredient.setQuantity(ingDto.getQuantity());
-                ingredient.setUnit(ingDto.getUnit());
-                ingredient.setNotes(ingDto.getNotes());
+                ingredient.setUnit(inputSanitizer.sanitize(ingDto.getUnit()));
+                ingredient.setNotes(inputSanitizer.sanitizeDescription(ingDto.getNotes()));
                 ingredient.setSortOrder(i);
                 product.addIngredient(ingredient);
             }

@@ -13,7 +13,12 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email", unique = true),
+    @Index(name = "idx_user_verification_token", columnList = "verification_token"),
+    @Index(name = "idx_user_reset_token", columnList = "reset_token"),
+    @Index(name = "idx_user_role", columnList = "role")
+})
 public class User implements UserDetails {
 
     @Id

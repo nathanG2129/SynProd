@@ -7,7 +7,11 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "product_ingredients")
+@Table(name = "product_ingredients", indexes = {
+    @Index(name = "idx_ingredient_product", columnList = "product_id"),
+    @Index(name = "idx_ingredient_name", columnList = "ingredient_name"),
+    @Index(name = "idx_ingredient_sort", columnList = "product_id, sort_order")
+})
 public class ProductIngredient {
 
     @Id

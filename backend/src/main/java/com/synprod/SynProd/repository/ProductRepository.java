@@ -23,6 +23,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
        @Query("SELECT p FROM Product p ORDER BY p.name ASC")
        List<Product> findAllOrderByName();
 
+       // Find all products with user (prevents N+1 queries)
+       @Query("SELECT p FROM Product p LEFT JOIN FETCH p.createdBy ORDER BY p.name ASC")
+       List<Product> findAllOrderByNameWithUser();
+
        // Find products with full composition data
        @Query("SELECT DISTINCT p FROM Product p " +
                      "LEFT JOIN FETCH p.compositions " +

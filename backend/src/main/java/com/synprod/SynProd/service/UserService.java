@@ -5,6 +5,7 @@ import com.synprod.SynProd.dto.UserDto;
 import com.synprod.SynProd.entity.User;
 import com.synprod.SynProd.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -18,6 +19,7 @@ public class UserService {
     }
 
     // Update user information
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
         // Find the user by ID
         User user = userRepository.findById(userId)

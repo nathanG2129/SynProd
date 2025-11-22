@@ -8,7 +8,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "product_compositions")
+@Table(name = "product_compositions", indexes = {
+    @Index(name = "idx_composition_product", columnList = "product_id"),
+    @Index(name = "idx_composition_component", columnList = "component_name"),
+    @Index(name = "idx_composition_sort", columnList = "product_id, sort_order")
+})
 public class ProductComposition {
 
     @Id
