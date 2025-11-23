@@ -15,10 +15,10 @@ import java.util.List;
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_user_email", columnList = "email", unique = true),
-    @Index(name = "idx_user_verification_token", columnList = "verification_token"),
+    @Index(name = "idx_user_invite_token", columnList = "invite_token"),
     @Index(name = "idx_user_reset_token", columnList = "reset_token"),
     @Index(name = "idx_user_role", columnList = "role"),
-    @Index(name = "idx_user_verification_expiry", columnList = "verification_token_expiry")
+    @Index(name = "idx_user_status", columnList = "status")
 })
 public class User implements UserDetails {
 
@@ -26,14 +26,12 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "First name is required")
     @Size(max = 50, message = "First name must be less than 50 characters")
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
     @Size(max = 50, message = "Last name must be less than 50 characters")
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @NotBlank(message = "Email is required")
@@ -41,26 +39,22 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
-    @Column(nullable = false)
+    @Column(nullable = true)  // Nullable until user accepts invite
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.PRODUCTION;
 
-    @Column(name = "is_enabled", nullable = false)
-    private boolean enabled = true;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.PENDING;
 
-    @Column(name = "email_verified", nullable = false)
-    private boolean emailVerified = false;
+    @Column(name = "invite_token")
+    private String inviteToken;
 
-    @Column(name = "verification_token")
-    private String verificationToken;
-
-    @Column(name = "verification_token_expiry")
-    private LocalDateTime verificationTokenExpiry;
+    @Column(name = "invite_token_expiry")
+    private LocalDateTime inviteTokenExpiry;
 
     @Column(name = "reset_token")
     private String resetToken;
@@ -128,7 +122,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled && emailVerified;
+        return status == UserStatus.ACTIVE;
     }
 
     // Getters and Setters
@@ -181,32 +175,28 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public UserStatus getStatus() {
+        return status;
     }
 
-    public boolean isEmailVerified() {
-        return emailVerified;
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
-    public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
+    public String getInviteToken() {
+        return inviteToken;
     }
 
-    public String getVerificationToken() {
-        return verificationToken;
+    public void setInviteToken(String inviteToken) {
+        this.inviteToken = inviteToken;
     }
 
-    public void setVerificationToken(String verificationToken) {
-        this.verificationToken = verificationToken;
+    public LocalDateTime getInviteTokenExpiry() {
+        return inviteTokenExpiry;
     }
 
-    public LocalDateTime getVerificationTokenExpiry() {
-        return verificationTokenExpiry;
-    }
-
-    public void setVerificationTokenExpiry(LocalDateTime verificationTokenExpiry) {
-        this.verificationTokenExpiry = verificationTokenExpiry;
+    public void setInviteTokenExpiry(LocalDateTime inviteTokenExpiry) {
+        this.inviteTokenExpiry = inviteTokenExpiry;
     }
 
     public String getResetToken() {

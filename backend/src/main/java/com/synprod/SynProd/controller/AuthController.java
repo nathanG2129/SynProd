@@ -16,10 +16,21 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * DEPRECATED: Public registration is disabled. Use admin invitation system instead.
+     * This endpoint is kept for backward compatibility but should not be used.
+     */
+    @Deprecated
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(403)
+                .body(AuthResponse.message("Public registration is disabled. Please contact an administrator for an invitation."));
+    }
+
+    @PostMapping("/accept-invite")
+    public ResponseEntity<AuthResponse> acceptInvite(@Valid @RequestBody AcceptInviteRequest request) {
         try {
-            AuthResponse response = authService.register(request);
+            AuthResponse response = authService.acceptInvite(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));
@@ -46,14 +57,14 @@ public class AuthController {
         }
     }
 
+    /**
+     * DEPRECATED: Email verification is no longer used. Invitation system replaces this.
+     */
+    @Deprecated
     @PostMapping("/verify-email")
     public ResponseEntity<AuthResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
-        try {
-            AuthResponse response = authService.verifyEmail(request.getToken());
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(AuthResponse.message(e.getMessage()));
-        }
+        return ResponseEntity.status(410)
+                .body(AuthResponse.message("Email verification is deprecated. Use the invitation system."));
     }
 
     @PostMapping("/forgot-password")

@@ -1,10 +1,10 @@
 package com.synprod.SynProd.service;
 
+import com.synprod.SynProd.dto.AcceptInviteRequest;
 import com.synprod.SynProd.dto.AuthRequest;
 import com.synprod.SynProd.dto.AuthResponse;
-import com.synprod.SynProd.dto.RegisterRequest;
 import com.synprod.SynProd.entity.User;
-import com.synprod.SynProd.exception.DuplicateResourceException;
+import com.synprod.SynProd.entity.UserStatus;
 import com.synprod.SynProd.exception.InvalidTokenException;
 import com.synprod.SynProd.exception.UserNotFoundException;
 import com.synprod.SynProd.repository.UserRepository;
@@ -14,10 +14,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -41,28 +41,34 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public AuthResponse register(RegisterRequest request) {
-        // Check if user already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("User with this email already exists");
+    @Transactional
+    public AuthResponse acceptInvite(AcceptInviteRequest request) {
+        // Find user by invite token
+        User user = userRepository.findByInviteToken(request.getToken())
+                .orElseThrow(() -> new InvalidTokenException("Invalid invitation token"));
+
+        // Check if token has expired
+        if (user.getInviteTokenExpiry() == null || user.getInviteTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Invitation token has expired. Please contact your administrator.");
         }
 
-        // Create new user
-        User user = new User();
+        // Check if user is in PENDING status
+        if (user.getStatus() != UserStatus.PENDING) {
+            throw new InvalidTokenException("This invitation has already been used.");
+        }
+
+        // Set user details
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setVerificationToken(UUID.randomUUID().toString());
-        user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24)); // 24 hour expiry
+        user.setStatus(UserStatus.ACTIVE);
+        user.setInviteToken(null);
+        user.setInviteTokenExpiry(null);
 
         // Save user
-        user = userRepository.save(user);
+        userRepository.save(user);
 
-        // Send verification email
-        emailService.sendVerificationEmail(user.getEmail(), user.getVerificationToken());
-
-        return AuthResponse.message("Registration successful. Please check your email to verify your account.");
+        return AuthResponse.message("Account activated successfully. You can now log in.");
     }
 
     public AuthResponse login(AuthRequest request) {
@@ -74,12 +80,15 @@ public class AuthService {
         UserDetails userDetails = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        // Check if user is active
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new InvalidTokenException("Account is not active. Please contact your administrator.");
+        }
+
         // Generate tokens
         String token = jwtUtil.generateToken(userDetails);
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-
-        // Get user entity for response
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
         return AuthResponse.success(token, refreshToken, user);
     }
@@ -93,59 +102,56 @@ public class AuthService {
         UserDetails userDetails = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        // Check if user is still active
+        User user = userRepository.findByEmail(email).orElseThrow();
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new InvalidTokenException("Account is not active. Please contact your administrator.");
+        }
+
         if (jwtUtil.validateToken(refreshToken, userDetails)) {
             String newToken = jwtUtil.generateToken(userDetails);
             String newRefreshToken = jwtUtil.generateRefreshToken(userDetails);
 
-            User user = userRepository.findByEmail(email).orElseThrow();
             return AuthResponse.success(newToken, newRefreshToken, user);
         } else {
             throw new InvalidTokenException("Invalid refresh token");
         }
     }
 
-    public AuthResponse verifyEmail(String token) {
-        User user = userRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new InvalidTokenException("Invalid verification token"));
-
-        // Check if token has expired
-        if (user.getVerificationTokenExpiry() != null && 
-            user.getVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new InvalidTokenException("Verification token has expired. Please request a new one.");
-        }
-
-        user.setEmailVerified(true);
-        user.setVerificationToken(null);
-        user.setVerificationTokenExpiry(null);
-        userRepository.save(user);
-
-        return AuthResponse.message("Email verified successfully. You can now log in.");
-    }
-
+    @Transactional
     public AuthResponse forgotPassword(String email) {
         // Prevent user enumeration: Always return success message
         Optional<User> userOpt = userRepository.findByEmail(email);
-        
+
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            String resetToken = UUID.randomUUID().toString();
-            user.setResetToken(resetToken);
-            user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(24));
-            userRepository.save(user);
-            
-            emailService.sendPasswordResetEmail(email, resetToken);
+
+            // Only send reset email if user is active
+            if (user.getStatus() == UserStatus.ACTIVE) {
+                String resetToken = java.util.UUID.randomUUID().toString();
+                user.setResetToken(resetToken);
+                user.setResetTokenExpiry(LocalDateTime.now().plusHours(24));
+                userRepository.save(user);
+
+                emailService.sendPasswordResetEmail(email, resetToken);
+            }
         }
-        
+
         // Generic message regardless of whether user exists (prevents enumeration)
         return AuthResponse.message("If an account exists with this email, a password reset link has been sent.");
     }
 
+    @Transactional
     public AuthResponse resetPassword(String token, String newPassword) {
         User user = userRepository.findByResetToken(token)
                 .orElseThrow(() -> new InvalidTokenException("Invalid reset token"));
 
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
             throw new InvalidTokenException("Reset token has expired");
+        }
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new InvalidTokenException("Account is not active. Please contact your administrator.");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

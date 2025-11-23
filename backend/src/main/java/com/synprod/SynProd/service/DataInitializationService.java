@@ -37,8 +37,7 @@ public class DataInitializationService implements CommandLineRunner {
                         admin.setEmail("admin@synprod.com");
                         admin.setPassword(passwordEncoder.encode(adminPassword));
                         admin.setRole(Role.ADMIN);
-                        admin.setEnabled(true);
-                        admin.setEmailVerified(true);
+                        admin.setStatus(UserStatus.ACTIVE);
                         userRepository.save(admin);
                         System.out.println("✅ Admin user created successfully");
                         System.out.println("   Email: admin@synprod.com");
@@ -55,8 +54,7 @@ public class DataInitializationService implements CommandLineRunner {
                         manager.setEmail("manager@synprod.com");
                         manager.setPassword(passwordEncoder.encode(managerPassword));
                         manager.setRole(Role.MANAGER);
-                        manager.setEnabled(true);
-                        manager.setEmailVerified(true);
+                        manager.setStatus(UserStatus.ACTIVE);
                         userRepository.save(manager);
                         System.out.println("✅ Manager user created successfully");
                         System.out.println("   Email: manager@synprod.com");

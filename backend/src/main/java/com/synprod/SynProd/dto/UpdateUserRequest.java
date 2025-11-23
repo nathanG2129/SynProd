@@ -1,6 +1,7 @@
 package com.synprod.SynProd.dto;
 
 import com.synprod.SynProd.entity.Role;
+import com.synprod.SynProd.entity.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,19 +24,19 @@ public class UpdateUserRequest {
     @NotNull(message = "Role is required")
     private Role role;
 
-    @NotNull(message = "Enabled status is required")
-    private Boolean enabled;
+    @NotNull(message = "Status is required")
+    private UserStatus status;
 
     // Constructors
     public UpdateUserRequest() {
     }
 
-    public UpdateUserRequest(String firstName, String lastName, String email, Role role, Boolean enabled) {
+    public UpdateUserRequest(String firstName, String lastName, String email, Role role, UserStatus status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.role = role;
-        this.enabled = enabled;
+        this.status = status;
     }
 
     // Getters and Setters
@@ -71,11 +72,11 @@ public class UpdateUserRequest {
         this.role = role;
     }
 
-    public Boolean getEnabled() {
-        return enabled;
+    public UserStatus getStatus() {
+        return status;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 }

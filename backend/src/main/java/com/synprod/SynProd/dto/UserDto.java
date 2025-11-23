@@ -2,6 +2,7 @@ package com.synprod.SynProd.dto;
 
 import com.synprod.SynProd.entity.Role;
 import com.synprod.SynProd.entity.User;
+import com.synprod.SynProd.entity.UserStatus;
 
 import java.time.LocalDateTime;
 
@@ -12,21 +13,21 @@ public class UserDto {
     private String lastName;
     private String email;
     private Role role;
-    private boolean emailVerified;
+    private UserStatus status;
     private LocalDateTime createdAt;
 
     // Constructors
     public UserDto() {
     }
 
-    public UserDto(Long id, String firstName, String lastName, String email, Role role, boolean emailVerified,
+    public UserDto(Long id, String firstName, String lastName, String email, Role role, UserStatus status,
             LocalDateTime createdAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.role = role;
-        this.emailVerified = emailVerified;
+        this.status = status;
         this.createdAt = createdAt;
     }
 
@@ -38,7 +39,7 @@ public class UserDto {
                 user.getLastName(),
                 user.getEmail(),
                 user.getRole(),
-                user.isEmailVerified(),
+                user.getStatus(),
                 user.getCreatedAt());
     }
 
@@ -83,12 +84,12 @@ public class UserDto {
         this.role = role;
     }
 
-    public boolean isEmailVerified() {
-        return emailVerified;
+    public UserStatus getStatus() {
+        return status;
     }
 
-    public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -100,6 +101,9 @@ public class UserDto {
     }
 
     public String getFullName() {
+        if (firstName == null || lastName == null) {
+            return email; // Return email if names not set yet (PENDING users)
+        }
         return firstName + " " + lastName;
     }
 }

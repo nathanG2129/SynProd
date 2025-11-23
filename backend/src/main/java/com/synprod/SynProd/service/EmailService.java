@@ -24,10 +24,10 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String toEmail, String token) {
-        // Log verification link for development
-        log.info("Sending verification email to: {}", toEmail);
-        log.debug("Verification link: {}/verify-email?token={}", frontendUrl, token);
+    public void sendInvitationEmail(String toEmail, String token, String invitedByAdmin) {
+        // Log invitation link for development
+        log.info("Sending invitation email to: {}", toEmail);
+        log.debug("Invitation link: {}/accept-invite?token={}", frontendUrl, token);
 
         // Send real email when SMTP is configured
         try {
@@ -36,20 +36,22 @@ public class EmailService {
                 message.setFrom(fromEmail);
             }
             message.setTo(toEmail);
-            message.setSubject("Verify Your Email - SynProd");
+            message.setSubject("You're Invited to SynProd");
             message.setText(String.format(
-                    "Welcome to SynProd!\n\n" +
-                            "Please click the following link to verify your email address:\n" +
-                            "%s/verify-email?token=%s\n\n" +
-                            "If you didn't create an account, please ignore this email.\n\n" +
+                    "Hello,\n\n" +
+                            "You have been invited by %s to join SynProd.\n\n" +
+                            "Please click the following link to accept your invitation and set your password:\n" +
+                            "%s/accept-invite?token=%s\n\n" +
+                            "This invitation link will expire in 7 days.\n\n" +
+                            "If you didn't expect this invitation, please contact your administrator.\n\n" +
                             "Best regards,\nThe SynProd Team",
-                    frontendUrl, token));
+                    invitedByAdmin, frontendUrl, token));
 
             mailSender.send(message);
-            log.info("Verification email sent successfully to: {}", toEmail);
+            log.info("Invitation email sent successfully to: {}", toEmail);
         } catch (Exception ex) {
-            // Log error but don't throw - email failure shouldn't prevent user registration
-            log.error("Failed to send verification email to: {}. User can request resend later.", toEmail, ex);
+            // Log error but don't throw - email failure shouldn't prevent user invitation
+            log.error("Failed to send invitation email to: {}. Admin should resend invitation.", toEmail, ex);
         }
     }
 
