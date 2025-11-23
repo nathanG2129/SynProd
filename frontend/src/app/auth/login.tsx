@@ -70,8 +70,8 @@ export function Login() {
           <div className="success-message">
             <CheckCircleIcon />
             <div className="success-message-content">
-              <h3>Registration Successful!</h3>
-              <p>Please check your email and click the verification link to activate your account before logging in.</p>
+              <h3>Welcome Back!</h3>
+              <p>{successMessage}</p>
             </div>
           </div>
         )}
@@ -159,9 +159,9 @@ export function Login() {
 
         <div className="auth-footer">
           <p>
-            <Link to="/register" className="auth-link">
-              Create account
-            </Link>
+            <a href="mailto:support@synprod.com" style={{ color: '#91b029', textDecoration: 'none', fontWeight: '500' }}>
+              Need help? Contact Support
+            </a>
           </p>
         </div>
       </div>

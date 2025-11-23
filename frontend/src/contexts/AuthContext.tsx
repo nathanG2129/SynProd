@@ -7,11 +7,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
+  acceptInvite: (token: string, firstName: string, lastName: string, password: string) => Promise<void>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
-  verifyEmail: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -162,9 +161,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authAPI.login({ email, password });
       const { token, refreshToken, user: userData } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      setUser(userData);
+      localStorage.setItem('token', token!);
+      localStorage.setItem('refreshToken', refreshToken!);
+      setUser(userData!);
       
       // Start token refresh interval after successful login
       startTokenRefreshInterval();
@@ -173,13 +172,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (firstName: string, lastName: string, email: string, password: string) => {
+  const acceptInvite = async (token: string, firstName: string, lastName: string, password: string) => {
     try {
-      const response = await authAPI.register({ firstName, lastName, email, password });
-      // Registration successful, but user needs to verify email
+      const response = await authAPI.acceptInvite({ token, firstName, lastName, password });
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      throw new Error(error.response?.data?.message || 'Failed to accept invitation');
     }
   };
 
@@ -209,25 +207,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const verifyEmail = async (token: string) => {
-    try {
-      const response = await authAPI.verifyEmail(token);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to verify email');
-    }
-  };
-
   const value: AuthContextType = {
     user,
     isAuthenticated,
     isLoading,
     login,
-    register,
+    acceptInvite,
     logout,
     forgotPassword,
     resetPassword,
-    verifyEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

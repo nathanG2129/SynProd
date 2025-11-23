@@ -1,9 +1,8 @@
 import { Route, Routes, Link, Navigate } from 'react-router-dom';
 import { Login } from '../app/auth/login';
-import { Register } from '../app/auth/register';
+import { AcceptInvite } from '../app/auth/accept-invite';
 import { ForgotPassword } from '../app/auth/forgot-password';
 import { ResetPassword } from '../app/auth/reset-password';
-import { VerifyEmail } from '../app/auth/verify-email';
 import { DashboardLayout } from '../app/dashboard/layout';
 import { DashboardHome } from '../app/dashboard/pages/DashboardHome';
 import { RecipeList } from '../app/dashboard/pages/RecipeList';
@@ -13,6 +12,7 @@ import { ProductForm } from '../app/dashboard/pages/ProductForm';
 import { RecipeDetail } from '../app/dashboard/pages/RecipeDetail';
 import { UserList } from '../app/dashboard/pages/UserList';
 import { UserForm } from '../app/dashboard/pages/UserForm';
+import { InviteUser } from '../app/dashboard/pages/InviteUser';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 import './auth/auth.css';
@@ -34,10 +34,10 @@ export function App() {
           } 
         />
         <Route 
-          path="/register" 
+          path="/accept-invite" 
           element={
             <ProtectedRoute requireAuth={false}>
-              <Register />
+              <AcceptInvite />
             </ProtectedRoute>
           } 
         />
@@ -54,14 +54,6 @@ export function App() {
           element={
             <ProtectedRoute requireAuth={false}>
               <ResetPassword />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/verify-email" 
-          element={
-            <ProtectedRoute requireAuth={false}>
-              <VerifyEmail />
             </ProtectedRoute>
           } 
         />
@@ -83,6 +75,7 @@ export function App() {
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="users" element={<UserList />} />
+          <Route path="users/invite" element={<InviteUser />} />
           <Route path="users/:id/edit" element={<UserForm />} />
         </Route>
         

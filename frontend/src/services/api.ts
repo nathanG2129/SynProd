@@ -16,10 +16,9 @@ api.interceptors.request.use(
     // Don't add token for public auth endpoints
     const publicEndpoints = [
       '/auth/login',
-      '/auth/register', 
+      '/auth/accept-invite',
       '/auth/forgot-password',
       '/auth/reset-password',
-      '/auth/verify-email',
       '/auth/refresh'
     ];
     
@@ -93,40 +92,46 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  register: (data: {
+  acceptInvite: (data: {
+    token: string;
     firstName: string;
     lastName: string;
-    email: string;
     password: string;
-  }) => api.post('/auth/register', data),
+  }) => api.post('/auth/accept-invite', data),
 
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
 
   forgotPassword: (email: string) =>
-    api.post('/auth/forgot-password', null, { params: { email } }),
+    api.post('/auth/forgot-password', { email }),
 
   resetPassword: (token: string, newPassword: string) =>
-    api.post('/auth/reset-password', null, { params: { token, newPassword } }),
-
-  verifyEmail: (token: string) =>
-    api.get('/auth/verify-email', { params: { token } }),
+    api.post('/auth/reset-password', { token, newPassword }),
 
   refreshToken: (refreshToken: string) =>
-    api.post('/auth/refresh', null, { params: { refreshToken } }),
+    api.post('/auth/refresh', { refreshToken }),
+};
+
+// Admin API
+export const adminAPI = {
+  inviteUser: (data: { email: string; role: string }) =>
+    api.post('/admin/invite', data),
 };
 
 // User API
 export const userAPI = {
   getProfile: () => api.get('/user/profile'),
-  getUserById: (id: number) => api.get(`/user/${id}`),
+  
   getAllUsers: () => api.get('/user'),
+  
+  getUserById: (id: number) => api.get(`/user/${id}`),
+  
   updateUser: (id: number, data: {
     firstName: string;
     lastName: string;
     email: string;
-    role: 'PRODUCTION' | 'MANAGER' | 'ADMIN';
-    enabled: boolean;
+    role: string;
+    status: string;
   }) => api.put(`/user/${id}`, data),
 };
 

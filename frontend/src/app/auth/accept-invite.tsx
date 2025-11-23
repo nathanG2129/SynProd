@@ -1,25 +1,32 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ErrorIcon, EyeIcon, EyeSlashIcon } from '../../components/ValidationIcons';
 import { PasswordStrengthIndicator } from '../../components/PasswordStrengthIndicator';
 import { PasswordRequirements } from '../../components/PasswordRequirements';
 import { useAuth } from '../../contexts/AuthContext';
-import './auth.css';
 
-export function Register() {
+export function AcceptInvite() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { acceptInvite } = useAuth();
+  
+  const token = searchParams.get('token');
+
+  useEffect(() => {
+    if (!token) {
+      setError('Invalid invitation link. Please check your email for the correct link.');
+    }
+  }, [token]);
 
   const validationRules = {
     firstName: { required: true },
     lastName: { required: true },
-    email: { required: true },
     password: { required: true },
     confirmPassword: { required: true }
   };
@@ -32,12 +39,17 @@ export function Register() {
     getFieldError,
     getFieldValidationState
   } = useFormValidation(
-    { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
+    { firstName: '', lastName: '', password: '', confirmPassword: '' },
     validationRules,
     { validateOnBlur: true, validateOnSubmit: true }
   );
 
   const onSubmit = async (data: Record<string, string>) => {
+    if (!token) {
+      setError('Invalid invitation link');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -48,11 +60,14 @@ export function Register() {
     }
 
     try {
-      await register(data.firstName, data.lastName, data.email, data.password);
-      // Registration successful, show success message and redirect to login
-      navigate('/login', { state: { message: 'Registration successful! Please check your email to verify your account.' } });
+      await acceptInvite(token, data.firstName, data.lastName, data.password);
+      navigate('/login', { 
+        state: { 
+          message: 'Account activated successfully! You can now log in with your credentials.' 
+        } 
+      });
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || 'Failed to accept invitation');
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +77,10 @@ export function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Register</h1>
+          <h1>Accept Invitation</h1>
+          <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '8px' }}>
+            Complete your account setup
+          </p>
         </div>
 
         {error && (
@@ -74,7 +92,9 @@ export function Register() {
         <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="firstName">
+                First Name <span className="required">*</span>
+              </label>
               <input
                 type="text"
                 id="firstName"
@@ -83,6 +103,8 @@ export function Register() {
                 onChange={(e) => updateField('firstName', e.target.value)}
                 onBlur={() => handleBlur('firstName')}
                 className={getFieldValidationState('firstName')}
+                placeholder="Enter your first name"
+                disabled={isLoading || !token}
                 required
               />
               {getFieldError('firstName') && (
@@ -94,7 +116,9 @@ export function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">
+                Last Name <span className="required">*</span>
+              </label>
               <input
                 type="text"
                 id="lastName"
@@ -103,6 +127,8 @@ export function Register() {
                 onChange={(e) => updateField('lastName', e.target.value)}
                 onBlur={() => handleBlur('lastName')}
                 className={getFieldValidationState('lastName')}
+                placeholder="Enter your last name"
+                disabled={isLoading || !token}
                 required
               />
               {getFieldError('lastName') && (
@@ -115,28 +141,10 @@ export function Register() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={(e) => updateField('email', e.target.value)}
-              onBlur={() => handleBlur('email')}
-              className={getFieldValidationState('email')}
-              required
-            />
-            {getFieldError('email') && (
-              <div className="validation-message error">
-                <ErrorIcon />
-                {getFieldError('email')}
-              </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div style={{ position: 'relative' }}>
+            <label htmlFor="password">
+              Password <span className="required">*</span>
+            </label>
+            <div className="password-input-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -144,24 +152,17 @@ export function Register() {
                 value={formData.password}
                 onChange={(e) => updateField('password', e.target.value)}
                 onBlur={() => handleBlur('password')}
+                onFocus={() => setShowPasswordRequirements(true)}
                 className={getFieldValidationState('password')}
+                placeholder="Create a strong password"
+                disabled={isLoading || !token}
                 required
-                minLength={8}
               />
               <button
                 type="button"
+                className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#718096',
-                  padding: '0'
-                }}
+                disabled={isLoading || !token}
               >
                 {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </button>
@@ -172,19 +173,20 @@ export function Register() {
                 {getFieldError('password')}
               </div>
             )}
-            <PasswordStrengthIndicator 
-              password={formData.password} 
-            />
-            <PasswordRequirements 
-              password={formData.password}
-              showRequirements={showPasswordRequirements}
-              onToggleRequirements={setShowPasswordRequirements}
-            />
+            
+            {showPasswordRequirements && formData.password && (
+              <>
+                <PasswordStrengthIndicator password={formData.password} />
+                <PasswordRequirements password={formData.password} />
+              </>
+            )}
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <div style={{ position: 'relative' }}>
+            <label htmlFor="confirmPassword">
+              Confirm Password <span className="required">*</span>
+            </label>
+            <div className="password-input-wrapper">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
@@ -193,23 +195,15 @@ export function Register() {
                 onChange={(e) => updateField('confirmPassword', e.target.value)}
                 onBlur={() => handleBlur('confirmPassword')}
                 className={getFieldValidationState('confirmPassword')}
+                placeholder="Re-enter your password"
+                disabled={isLoading || !token}
                 required
-                minLength={8}
               />
               <button
                 type="button"
+                className="password-toggle"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#718096',
-                  padding: '0'
-                }}
+                disabled={isLoading || !token}
               >
                 {showConfirmPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </button>
@@ -220,26 +214,33 @@ export function Register() {
                 {getFieldError('confirmPassword')}
               </div>
             )}
-
+            {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
+              <div className="validation-message error">
+                <ErrorIcon />
+                Passwords do not match
+              </div>
+            )}
           </div>
 
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
+          <button
+            type="submit"
+            className="btn btn-primary btn-block"
+            disabled={isLoading || !token}
           >
-            {isLoading ? 'Creating account...' : 'CREATE ACCOUNT'}
+            {isLoading ? 'Activating Account...' : 'Activate Account'}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            <Link to="/login" className="auth-link">
-              Sign in
-            </Link>
+            Already have an account?{' '}
+            <a href="/login" style={{ color: '#91b029', textDecoration: 'none', fontWeight: '500' }}>
+              Login
+            </a>
           </p>
         </div>
       </div>
     </div>
   );
-} 
+}
+

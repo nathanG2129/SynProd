@@ -39,7 +39,7 @@ export function UserForm() {
       lastName: '', 
       email: '', 
       role: 'PRODUCTION',
-      enabled: 'true'
+      status: 'ACTIVE'
     },
     validationRules,
     { validateOnBlur: true, validateOnSubmit: true }
@@ -72,7 +72,7 @@ export function UserForm() {
       updateField('lastName', userData.lastName);
       updateField('email', userData.email);
       updateField('role', userData.role);
-      updateField('enabled', userData.enabled ? 'true' : 'false');
+      updateField('status', userData.status);
       
     } catch (err: any) {
       setError('Failed to load user details');
@@ -91,7 +91,7 @@ export function UserForm() {
       lastName: data.lastName,
       email: data.email,
       role: data.role as 'PRODUCTION' | 'MANAGER' | 'ADMIN',
-      enabled: data.enabled === 'true'
+      status: data.status as 'PENDING' | 'ACTIVE' | 'SUSPENDED'
     };
 
     try {
@@ -269,50 +269,33 @@ export function UserForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="enabled">Account Status *</label>
+              <label htmlFor="status">Account Status *</label>
               <select
-                id="enabled"
-                name="enabled"
-                value={formData.enabled}
-                onChange={(e) => updateField('enabled', e.target.value)}
-                onBlur={() => handleBlur('enabled')}
-                className={getFieldValidationState('enabled')}
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={(e) => updateField('status', e.target.value)}
+                onBlur={() => handleBlur('status')}
+                className={getFieldValidationState('status')}
                 required
                 style={{
                   padding: '12px 16px',
                   border: '2px solid #d1d5db',
                   borderRadius: '6px',
                   fontSize: '1rem',
-                  width: '100%'
+                  width: '100%',
+                  backgroundColor: '#fff'
                 }}
               >
-                <option value="true">Enabled</option>
-                <option value="false">Disabled</option>
+                <option value="ACTIVE">Active</option>
+                <option value="SUSPENDED">Suspended</option>
+                <option value="PENDING">Pending (Awaiting Invitation)</option>
               </select>
+              <p style={{ margin: '8px 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
+                Set to Suspended to temporarily disable account access
+              </p>
             </div>
           </div>
-
-          {/* Read-only Email Verification Status */}
-          {user && (
-            <div className="form-group">
-              <label>Email Verification Status</label>
-              <div style={{
-                padding: '12px 16px',
-                border: '2px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '1rem',
-                backgroundColor: '#f8f9fa',
-                color: '#6c757d'
-              }}>
-                <span className={`verification-badge ${user.emailVerified ? 'verified' : 'unverified'}`}>
-                  {user.emailVerified ? 'Verified' : 'Unverified'}
-                </span>
-                <span style={{ marginLeft: '8px', fontSize: '0.875rem' }}>
-                  (This status cannot be modified)
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Form Actions */}

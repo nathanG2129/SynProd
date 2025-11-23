@@ -4,7 +4,7 @@ import { userAPI } from '../../../services/api';
 import { User } from '../../../types/auth';
 import { useAuth } from '../../../contexts/AuthContext';
 
-type SortKey = 'firstName' | 'lastName' | 'email' | 'role' | 'createdAt' | 'emailVerified';
+type SortKey = 'firstName' | 'lastName' | 'email' | 'role' | 'createdAt' | 'status';
 
 export function UserList() {
   const { user } = useAuth();
@@ -87,9 +87,11 @@ export function UserList() {
           aVal = new Date(a.createdAt).getTime();
           bVal = new Date(b.createdAt).getTime();
           break;
-        case 'emailVerified':
-          aVal = a.emailVerified ? 1 : 0;
-          bVal = b.emailVerified ? 1 : 0;
+        case 'status':
+          // Sort order: PENDING > ACTIVE > SUSPENDED
+          const statusOrder: Record<string, number> = { PENDING: 0, ACTIVE: 1, SUSPENDED: 2 };
+          aVal = statusOrder[a.status] ?? 999;
+          bVal = statusOrder[b.status] ?? 999;
           break;
         default:
           return 0;
@@ -161,6 +163,13 @@ export function UserList() {
           <h1 className="page-title">User Management</h1>
           <p className="page-subtitle">View and manage system users</p>
         </div>
+        <Link to="/dashboard/users/invite" className="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Invite User
+        </Link>
       </div>
 
       {error && (
@@ -209,8 +218,8 @@ export function UserList() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
-                <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
-                  {u.emailVerified ? 'Verified' : 'Unverified'}
+                <span className={`status-badge ${u.status.toLowerCase()}`}>
+                  {u.status}
                 </span>
               </div>
               <div style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '16px' }}>
@@ -247,7 +256,7 @@ export function UserList() {
                   {headerCell('Last Name', 'lastName')}
                   {headerCell('Email', 'email')}
                   {headerCell('Role', 'role')}
-                  {headerCell('Verified?', 'emailVerified')}
+                  {headerCell('Status', 'status')}
                   {headerCell('Created', 'createdAt')}
                   <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Actions</th>
                 </tr>
@@ -262,8 +271,8 @@ export function UserList() {
                       <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
-                      <span className={`verification-badge ${u.emailVerified ? 'verified' : 'unverified'}`}>
-                        {u.emailVerified ? 'Verified' : 'Unverified'}
+                      <span className={`status-badge ${u.status.toLowerCase()}`}>
+                        {u.status}
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
