@@ -33,14 +33,19 @@ public class UserDto {
 
     // Static factory method
     public static UserDto fromUser(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        // Safely extract values with defaults to prevent null serialization issues
         return new UserDto(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getRole(),
-                user.getStatus(),
-                user.getCreatedAt());
+                user.getId() != null ? user.getId() : 0L,
+                user.getFirstName() != null ? user.getFirstName() : "",
+                user.getLastName() != null ? user.getLastName() : "",
+                user.getEmail() != null ? user.getEmail() : "",
+                user.getRole() != null ? user.getRole() : Role.PRODUCTION,
+                user.getStatus() != null ? user.getStatus() : UserStatus.PENDING,
+                user.getCreatedAt() != null ? user.getCreatedAt() : java.time.LocalDateTime.now());
     }
 
     // Getters and Setters

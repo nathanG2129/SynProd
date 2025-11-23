@@ -38,7 +38,10 @@ public class UserService {
 
         // Get the admin who is inviting
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String invitedBy = admin.getFullName();
+        // Safely get admin's full name with fallback to email
+        String invitedBy = (admin.getFirstName() != null && admin.getLastName() != null) 
+            ? admin.getFirstName() + " " + admin.getLastName() 
+            : admin.getEmail();
 
         // Create new user in PENDING status
         User user = new User();

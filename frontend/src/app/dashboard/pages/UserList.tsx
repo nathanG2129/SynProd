@@ -36,9 +36,20 @@ export function UserList() {
         setIsLoading(true);
         setError('');
         const res = await userAPI.getAllUsers();
-        setUsers(res.data);
+        // Filter out any invalid users and ensure all have required fields
+        const validUsers = (res.data || []).filter((u: User) => u && u.id).map((u: User) => ({
+          ...u,
+          firstName: u.firstName || '',
+          lastName: u.lastName || '',
+          email: u.email || '',
+          role: u.role || 'PRODUCTION',
+          status: u.status || 'ACTIVE', // Default to ACTIVE for backwards compatibility
+          createdAt: u.createdAt || new Date().toISOString()
+        }));
+        setUsers(validUsers);
       } catch (e: any) {
         setError('Failed to load users');
+        console.error('Error loading users:', e);
       } finally {
         setIsLoading(false);
       }
@@ -56,10 +67,10 @@ export function UserList() {
     const term = search.trim().toLowerCase();
     const list = term
       ? users.filter(u =>
-          u.firstName.toLowerCase().includes(term) ||
-          u.lastName.toLowerCase().includes(term) ||
-          u.email.toLowerCase().includes(term) ||
-          u.role.toLowerCase().includes(term)
+          (u.firstName?.toLowerCase() || '').includes(term) ||
+          (u.lastName?.toLowerCase() || '').includes(term) ||
+          (u.email?.toLowerCase() || '').includes(term) ||
+          (u.role?.toLowerCase() || '').includes(term)
         )
       : users;
 
@@ -68,30 +79,31 @@ export function UserList() {
       let bVal: any;
       switch (sortBy) {
         case 'firstName':
-          aVal = a.firstName.toLowerCase();
-          bVal = b.firstName.toLowerCase();
+          aVal = (a.firstName?.toLowerCase() || '');
+          bVal = (b.firstName?.toLowerCase() || '');
           break;
         case 'lastName':
-          aVal = a.lastName.toLowerCase();
-          bVal = b.lastName.toLowerCase();
+          aVal = (a.lastName?.toLowerCase() || '');
+          bVal = (b.lastName?.toLowerCase() || '');
           break;
         case 'email':
-          aVal = a.email.toLowerCase();
-          bVal = b.email.toLowerCase();
+          aVal = (a.email?.toLowerCase() || '');
+          bVal = (b.email?.toLowerCase() || '');
           break;
         case 'role':
-          aVal = a.role;
-          bVal = b.role;
+          aVal = a.role || '';
+          bVal = b.role || '';
           break;
         case 'createdAt':
-          aVal = new Date(a.createdAt).getTime();
-          bVal = new Date(b.createdAt).getTime();
+          aVal = new Date(a.createdAt || 0).getTime();
+          bVal = new Date(b.createdAt || 0).getTime();
           break;
         case 'status':
           // Sort order: PENDING > ACTIVE > SUSPENDED
+          // Default to ACTIVE if status is undefined (backwards compatibility)
           const statusOrder: Record<string, number> = { PENDING: 0, ACTIVE: 1, SUSPENDED: 2 };
-          aVal = statusOrder[a.status] ?? 999;
-          bVal = statusOrder[b.status] ?? 999;
+          aVal = statusOrder[a.status || 'ACTIVE'] ?? 999;
+          bVal = statusOrder[b.status || 'ACTIVE'] ?? 999;
           break;
         default:
           return 0;
@@ -213,17 +225,17 @@ export function UserList() {
           {filtered.map((u) => (
             <div key={u.id} className="content-card user-card" style={{ height: 'fit-content' }}>
               <div style={{ marginBottom: '12px' }}>
-                <h3 style={{ margin: 0 }}>{u.firstName} {u.lastName}</h3>
-                <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>{u.email}</p>
+                <h3 style={{ margin: 0 }}>{u.firstName || ''} {u.lastName || ''}</h3>
+                <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>{u.email || ''}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
-                <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
-                <span className={`status-badge ${u.status.toLowerCase()}`}>
-                  {u.status}
+                <span className={`role-badge ${(u.role || '').toLowerCase()}`}>{u.role || 'UNKNOWN'}</span>
+                <span className={`status-badge ${(u.status || 'ACTIVE').toLowerCase()}`}>
+                  {u.status || 'ACTIVE'}
                 </span>
               </div>
               <div style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '16px' }}>
-                Joined {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                Joined {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Link
@@ -264,19 +276,19 @@ export function UserList() {
               <tbody>
                 {filtered.map((u, idx) => (
                   <tr key={u.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.firstName}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.lastName}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{u.email}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.firstName || ''}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>{u.lastName || ''}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{u.email || ''}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
-                      <span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span>
+                      <span className={`role-badge ${(u.role || '').toLowerCase()}`}>{u.role || 'UNKNOWN'}</span>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0' }}>
-                      <span className={`status-badge ${u.status.toLowerCase()}`}>
-                        {u.status}
+                      <span className={`status-badge ${(u.status || 'ACTIVE').toLowerCase()}`}>
+                        {u.status || 'ACTIVE'}
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
-                      {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', textAlign: 'center' }}>
                       <Link 

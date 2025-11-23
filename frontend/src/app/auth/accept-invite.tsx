@@ -144,7 +144,7 @@ export function AcceptInvite() {
             <label htmlFor="password">
               Password <span className="required">*</span>
             </label>
-            <div className="password-input-wrapper">
+            <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -160,9 +160,19 @@ export function AcceptInvite() {
               />
               <button
                 type="button"
-                className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading || !token}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#718096',
+                  padding: '0'
+                }}
               >
                 {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </button>
@@ -186,7 +196,7 @@ export function AcceptInvite() {
             <label htmlFor="confirmPassword">
               Confirm Password <span className="required">*</span>
             </label>
-            <div className="password-input-wrapper">
+            <div style={{ position: 'relative' }}>
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
@@ -201,9 +211,19 @@ export function AcceptInvite() {
               />
               <button
                 type="button"
-                className="password-toggle"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 disabled={isLoading || !token}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#718096',
+                  padding: '0'
+                }}
               >
                 {showConfirmPassword ? <EyeSlashIcon /> : <EyeIcon />}
               </button>

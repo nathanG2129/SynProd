@@ -1,14 +1,12 @@
 # Multi-stage Dockerfile for SynProd Spring Boot Application
 # Stage 1: Build the application
-FROM openjdk:21-jdk-slim AS build
+FROM eclipse-temurin:21-jdk-alpine AS build
 
 # Set working directory
 WORKDIR /app
 
 # Install necessary packages for build
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # Copy Gradle wrapper and build files
 COPY gradlew .
@@ -26,18 +24,16 @@ COPY src/ src/
 RUN ./gradlew build -x test --no-daemon
 
 # Stage 2: Create production image
-FROM openjdk:21-jdk-slim AS production
+FROM eclipse-temurin:21-jre-alpine AS production
 
 # Set working directory
 WORKDIR /app
 
 # Install necessary packages for production
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # Create non-root user for security
-RUN groupadd -r synprod && useradd -r -g synprod synprod
+RUN addgroup -S synprod && adduser -S synprod -G synprod
 
 # Copy the built JAR from build stage
 COPY --from=build /app/build/libs/*.jar app.jar

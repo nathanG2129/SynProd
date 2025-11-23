@@ -232,6 +232,9 @@ public class User implements UserDetails {
     }
 
     public String getFullName() {
+        if (firstName == null || lastName == null || firstName.trim().isEmpty() || lastName.trim().isEmpty()) {
+            return email; // Return email if names not set (PENDING users or missing data)
+        }
         return firstName + " " + lastName;
     }
 

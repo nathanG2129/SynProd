@@ -146,11 +146,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const loadUser = async () => {
     try {
       const response = await userAPI.getProfile();
-      setUser(response.data);
+      const userData = response.data;
+      
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
     } catch (error) {
       console.error('Failed to load user:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +169,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       localStorage.setItem('token', token!);
       localStorage.setItem('refreshToken', refreshToken!);
-      setUser(userData!);
+      
+      // Save user to localStorage for quick access
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+      }
       
       // Start token refresh interval after successful login
       startTokenRefreshInterval();
@@ -184,6 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     setUser(null);
     clearTokenRefreshInterval();
     clearSessionTimeout();
