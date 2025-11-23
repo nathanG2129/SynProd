@@ -25,9 +25,8 @@ public class EmailService {
     }
 
     public void sendInvitationEmail(String toEmail, String token, String invitedByAdmin) {
-        // Log invitation link for development
+        // Log invitation email sending (token not logged for security)
         log.info("Sending invitation email to: {}", toEmail);
-        log.debug("Invitation link: {}/accept-invite?token={}", frontendUrl, token);
 
         // Send real email when SMTP is configured
         try {
@@ -56,9 +55,8 @@ public class EmailService {
     }
 
     public void sendPasswordResetEmail(String toEmail, String token) {
-        // Log reset link for development
+        // Log password reset email sending (token not logged for security)
         log.info("Sending password reset email to: {}", toEmail);
-        log.debug("Reset link: {}/reset-password?token={}", frontendUrl, token);
 
         // Send real email when SMTP is configured
         try {
@@ -81,8 +79,10 @@ public class EmailService {
             mailSender.send(message);
             log.info("Password reset email sent successfully to: {}", toEmail);
         } catch (Exception ex) {
-            // Log error but don't throw - email failure shouldn't prevent password reset token creation
-            log.error("Failed to send password reset email to: {}. Token is still valid if user has the link.", toEmail, ex);
+            // Log error but don't throw - email failure shouldn't prevent password reset
+            // token creation
+            log.error("Failed to send password reset email to: {}. Token is still valid if user has the link.", toEmail,
+                    ex);
         }
     }
 }
