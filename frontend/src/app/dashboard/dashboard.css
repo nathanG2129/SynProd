@@ -400,10 +400,18 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
+  align-items: stretch; /* CRITICAL: Makes all cards same height */
 }
 
 .grid-list.compact {
   grid-template-columns: repeat(auto-fill, minmax(340px, 2fr));
+}
+
+/* Recipe card layout - ensures buttons align at bottom */
+.recipe-card {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  height: 100%; /* Fill the grid cell */
 }
 
 /* Page Headers */

@@ -164,12 +164,13 @@ export function RecipeList() {
       ) : (
         <div className="recipes-grid grid-list compact">
           {displayProducts.map((product) => (
-            <div key={product.id} className="content-card recipe-card" style={{ cursor: 'pointer', height: 'fit-content' }}>
-              <Link 
-                to={`/dashboard/recipes/${product.id}`} 
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <div style={{ marginBottom: '16px' }}>
+            <div key={product.id} className="content-card recipe-card" style={{ cursor: 'pointer' }}>
+              {/* Card Content - grows to fill space */}
+              <div style={{ flex: 1, marginBottom: '20px' }}>
+                <Link 
+                  to={`/dashboard/recipes/${product.id}`} 
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                   <h3 style={{ 
                     margin: '0 0 8px 0', 
                     fontSize: '1.25rem',
@@ -290,13 +291,15 @@ export function RecipeList() {
                       Created by {product.createdByName}
                     </p>
                   )}
-                </div>
-              </Link>
+                </Link>
+              </div>
               
+              {/* Card Footer - stays at bottom */}
               <div style={{
                 borderTop: '1px solid #e2e8f0',
                 paddingTop: '12px',
-                textAlign: 'center'
+                textAlign: 'center',
+                marginTop: 'auto'
               }}>
                 <Link 
                   to={`/dashboard/recipes/${product.id}`}
