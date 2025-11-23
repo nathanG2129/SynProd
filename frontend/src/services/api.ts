@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+// Support environment variable for API URL (for cross-domain deployments)
+// Defaults to '/api' for same-domain deployment (works with Nginx proxy)
+// For cross-domain: Set VITE_API_BASE_URL=https://api.synprod.com in .env.production
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Create axios instance
 const api = axios.create({
